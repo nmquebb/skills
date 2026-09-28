@@ -41,5 +41,8 @@ settled choice; read only the last ~40 lines before appending. Format:
 - Owners: `q-workflow` config, lifecycle, orchestration, artifacts, and GitHub tracker references;
   `q-archive`
 - Validation: suite validator, script tests, and compatibility check; the migrated project's
-  configuration validated against the schema
+  configuration validated against the schema; live Check in Claude Code, Codex's model-visible
+  listing, and pi's loader in the migrated project; independent GPT-6 Sol review at high effort (3
+  major and 1 minor finding, all fixed and verified, one adding the read rule for proposals closed
+  by a repeated opening marker)
 - Next evidence: the source project's first Hub-triaged issue and first automated Archive on `v1`
