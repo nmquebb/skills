@@ -17,13 +17,14 @@ approval, validate the proposal comment identity and digest exactly as the
 defines them. Never repair a malformed contract from Implement.
 
 Require the branch shape `branches.issue` names, with type `feature`, `fix`, `chore`, or `release`;
-keep a differently shaped branch only when the contract already records it. Fetch the parent and
-require the approved baseline to remain its ancestor. Return to Triage only when parent movement
-changes the approved outcome, owner, contract, migration, acceptance, or verification strategy.
+keep a differently shaped branch only when the contract already records it. Fetch the parent when a
+remote exists, and require the approved baseline to remain its ancestor. Return to Triage only when
+parent movement changes the approved outcome, owner, contract, migration, acceptance, or
+verification strategy.
 
 ## Establish ownership
 
-Create or resume the exact recorded branch from the fetched parent. If another worktree owns it,
+Create or resume the exact recorded branch from the current parent. If another worktree owns it,
 report that path and stop. Preserve unrelated staged, modified, or untracked work; never stash,
 reset, absorb, or delete it, or rewrite published history. Set the issue to `inProgress` once branch
 ownership is proved.

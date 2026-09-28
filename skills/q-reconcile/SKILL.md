@@ -105,7 +105,7 @@ Record current checks and review state exactly; never describe a missing, pendin
 cancelled, or failed check as passing.
 
 When the current parent is not an ancestor of the candidate head, run the backend's `sync-parent`:
-merge the fetched parent into the implementation branch without rebasing. Resolve straightforward
+merge the current parent into the implementation branch without rebasing. Resolve straightforward
 conflicts that preserve the approved outcome, run affected evidence, apply
 [q-code-quality](../q-code-quality/SKILL.md) when executable code changed, commit, and republish.
 Return to Implement or Plan only when resolution needs material executable or contract decisions.
@@ -123,8 +123,9 @@ and retain all resources. If the harness denies the merge command, stop with the
 head, retain every resource, and resume Integrate from this checkpoint when re-invoked; record the
 wait as a pause, not a failure.
 
-After the host reports the merge, fetch again and run the backend's merge proof. Do not edit the
-merged parent just to backfill the active ledger; Archive owns the durable merge record.
+After the host reports the merge, fetch again when a remote exists and run the backend's merge
+proof. Do not edit the merged parent just to backfill the active ledger; Archive owns the durable
+merge record.
 
 Clean only the exact recorded delivery-owned state:
 
@@ -169,10 +170,10 @@ lives. Create no issue automatically and do not run Archive.
 ## Resolve a lightweight issue conflict
 
 Require one approved `q-triage:v1` issue, its one closing candidate, the recorded branch, and the
-exact branch-owning workspace. Run the backend's `sync-parent`: fetch and merge the current parent
-into the issue branch without rebasing or force. Resolve only conflicts needed to preserve the
-approved issue outcome and current parent behavior. Run affected focused evidence, inspect the merge
-diff, commit if needed, republish, and verify the candidate head.
+exact branch-owning workspace. Run the backend's `sync-parent`: fetch when a remote exists, then
+merge the current parent into the issue branch without rebasing or force. Resolve only conflicts
+needed to preserve the approved issue outcome and current parent behavior. Run affected focused
+evidence, inspect the merge diff, commit if needed, republish, and verify the candidate head.
 
 Return to [q-triage](../q-triage/SKILL.md) when resolution changes outcome, ownership, public
 contract, migration, acceptance, or verification strategy. Otherwise report the repaired head and

@@ -20,12 +20,13 @@ artifacts, update metrics or the roadmap, launch supporting agents, or implement
 
 ## Resolve the issue
 
-Require one explicit issue reference; **resolve** it to exactly one issue. The tracker is truth.
-**Read** its title, description, state, status, comments or log, and linked candidates, then inspect
-the current branch, commit, status, applicable documentation, existing logic, call sites, tests,
-and relevant history, following [code retrieval](../q-code-quality/references/code-retrieval.md).
-Stop on an ambiguous repository or issue identity. Retriage a closed issue only on explicit user
-instruction.
+Require one explicit issue reference, or an explicit request to file a new issue: then
+**create** it and triage that exact issue. **Resolve** the reference to exactly one issue; the
+tracker is truth. **Read** its title, description, state, status, comments or log, and linked
+candidates, then inspect the current branch, commit, status, applicable documentation, existing
+logic, call sites, tests, and relevant history, following
+[code retrieval](../q-code-quality/references/code-retrieval.md). Stop on an ambiguous repository
+or issue identity. Retriage a closed issue only on explicit user instruction.
 
 Preserve all issue content outside the one `q-triage:v1` block the
 [tracker contract](../q-workflow/references/backends/tracker.md#the-triage-block) defines. Zero
@@ -112,10 +113,12 @@ criterion maps to a plan step or verification item. Known paths are evidence, no
 allowlist.
 
 Present unresolved decisions and the complete proposed block together, then obtain explicit user
-approval (a clear approval of the displayed proposal suffices) before changing the tracker. When
-automation dispatched triage, or the user asks to approve on GitHub, use the
+approval (a clear approval of the displayed proposal suffices) before changing the tracker. With
+the GitHub tracker, when automation dispatched triage or the user asks to approve on GitHub, use
+the
 [asynchronous approval](../q-workflow/references/backends/tracker-github.md#asynchronous-approval)
-protocol instead; never write the contract or set `ready` before valid approval.
+protocol instead; with another tracker, automation reports the proposal and stops until the user
+approves it in a session. Never write the contract or set `ready` before valid approval.
 
 **Write-contract**: replace only the single existing block or append the first block after the
 original content; never overwrite the original description, comments, or unrelated sections.

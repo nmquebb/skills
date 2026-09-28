@@ -70,6 +70,9 @@ resources, or destructive data operations need explicit user direction for the s
 
 `{type}` is `feature`, `fix`, `chore`, or `release`; `{slug}` is lowercase kebab-case.
 
+With `git.remote: none`, skip every fetch and push a skill describes, and read `<remote>/<branch>`
+as the local `<branch>`.
+
 ### Paths
 
 | Key | Default | Meaning |

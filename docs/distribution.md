@@ -33,6 +33,11 @@ npx skills add nmquebb/skills#v1 -a claude-code codex pi --skill q-code-quality 
 Commit `.agents/skills/`, `.claude/skills/`, and `skills-lock.json`; updates then arrive as reviewable
 diffs. pi loads project skills only after the project is trusted.
 
+Code search that indexes hidden directories (fff, `rg --hidden`, `fd --hidden`) returns the
+installed suite beside your code. A repository-root `.ignore` containing `/.agents/skills/q-*/`
+hides it from those tools; Claude Code, Codex, and pi still load the skills. Keep that rule out of
+`.agents/skills/` itself, where pi would apply it.
+
 **Claude Code plugin marketplace:**
 
 ```text

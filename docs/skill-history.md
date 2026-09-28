@@ -46,3 +46,21 @@ settled choice; read only the last ~40 lines before appending. Format:
   major and 1 minor finding, all fixed and verified, one adding the read rule for proposals closed
   by a repeated opening marker)
 - Next evidence: the source project's first Hub-triaged issue and first automated Archive on `v1`
+
+### 2026-09-28 — Second consumer: local backends
+
+- Source: configuring a local-only Rust project (no remote) on `v1`: local tracker, local
+  integration, no roadmap, Paseo routes
+- Problem: fetch steps assumed a remote; Archive's local publication had no defined working branch;
+  Triage could not file the issue it was asked to triage; automated approval named only GitHub's
+  comment protocol; Roadmap with `none` pushed setup; the Paseo reference implied a read-only Codex
+  mode; the installed suite crowded hidden-directory code search
+- Decision: adopted — every fetch is conditional on a remote; Archive with local publication works
+  on the checked-out parent; Triage creates the issue on explicit request; other trackers' automated
+  approval waits for the user; a root `.ignore` hides the suite from search tools
+- Owners: `q-workflow` config, lifecycle, and Paseo launcher references; `q-reconcile`,
+  `q-archive`, `q-triage`, `q-roadmap`, `q-implement` issue protocol; distribution docs
+- Validation: the consumer's configuration validated against the schema; live Check in Claude Code,
+  Codex's model-visible listing, and pi's loader in the consumer; independent GPT-6 Sol review (1
+  blocker, 2 major, 3 minor, 1 nit, all addressed)
+- Next evidence: the first local lifecycle delivery and local triaged issue

@@ -45,10 +45,13 @@ or unrelated working-tree changes. Record the failure and leave delivered code u
 
 ## Recover authoritative evidence
 
-Bring the clean working branch to the current parent: fetch and fast-forward the local parent when
-it is checked out here, otherwise reset the caller's throwaway branch to `<remote>/<parent>`. Read the
-merged Spec, Plan, ledger, candidate body, checks, reviews, retained head, merge commit, the
-`q-reconcile-complete:v1` record, and the roadmap item. The host and Git own merge facts; record
+Bring the clean working branch to the current parent. With `archive.publish: local`, the working
+branch is the parent itself, checked out clean in the control checkout; fast-forward it from the
+remote only when one exists. Otherwise fetch and fast-forward the local parent when it is checked
+out here, or reset the caller's throwaway branch to `<remote>/<parent>`.
+
+Read the merged Spec, Plan, ledger, candidate body, checks, reviews, retained head, merge commit,
+the `q-reconcile-complete:v1` record, and the roadmap item. The host and Git own merge facts; record
 failed, skipped, pending, waived, or missing evidence as it is, never as green.
 
 If `<paths.work>/<slug>/` is gone, recover the approved artifacts from the retained head or merge

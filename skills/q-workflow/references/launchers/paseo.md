@@ -11,7 +11,9 @@ and CLI syntax; this reference owns only the q rules on top of it.
 - When a route is unavailable, run `paseo provider diagnostic <provider> --json` or
   `inspect_provider` before offering alternatives; report any fallback.
 - Mode equivalents across providers: Codex `full-access` is Claude `bypassPermissions` unattended
-  and `auto` interactive; Codex `auto-review` is Claude `plan` (read-only).
+  and `auto` interactive; Codex `auto-review` is Claude `plan`. Only Claude `plan` is read-only:
+  every Codex mode Paseo offers can write the workspace, so a read-only role on Codex rests on its
+  read-only instruction.
 - Tell Claude plan-mode roles to inspect immediately without `ExitPlanMode` or write-access
   requests.
 - Rely on `notifyOnFinish`, not polling. Archive a disposable child with `archive_agent` once its

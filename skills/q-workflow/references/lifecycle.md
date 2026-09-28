@@ -210,9 +210,9 @@ After implementation is coherent:
 3. move the roadmap item to In review when a roadmap is configured; that write is not a merge
    prerequisite.
 
-Reconcile Integrate runs from the control checkout. It fetches current state, reconciles parent
-drift on the implementation branch without rewriting history, and proves the exact base, head, and
-merge identity.
+Reconcile Integrate runs from the control checkout. It reads current state (fetching when a remote
+exists), reconciles parent drift on the implementation branch without rewriting history, and proves
+the exact base, head, and merge identity.
 
 For `merge-lean`, merge the current head immediately with the configured method and the host's
 exact-head guard. Record current check results for disclosure; do not wait, request another

@@ -11,7 +11,8 @@ scope, Plans implementation decisions, ledgers execution, candidates delivery, a
 completed knowledge; see [artifacts](../q-workflow/references/artifacts.md). Read the project
 configuration and addenda per [config](../q-workflow/references/config.md), then only the backend
 for `roadmap.backend`: [github-project](references/github-project.md) or [local](references/local.md).
-With `none`, write nothing: report that no roadmap is configured and name `q-workflow` setup.
+With `none`, write nothing: report that the project configures no roadmap, and name `q-workflow`
+setup only when the user wants one.
 
 ## Preserve the model
 
