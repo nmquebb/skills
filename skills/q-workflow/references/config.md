@@ -11,8 +11,9 @@ the host's approval for such a write rather than writing elsewhere. Every key is
 Read `.agents/q/config.yaml` from the repository root once per session, before the first step that
 depends on it, and reuse the result. Then read `.agents/q/<skill>.md` for the running skill, where
 `<skill>` is its name without `q-` (for example `.agents/q/implement.md`), and
-`.agents/q/workflow.md` for every lifecycle phase. These optional project addenda extend the suite
-for this repository.
+`.agents/q/workflow.md` for every q skill except the standalone ones (`q-code-quality`, `q-tdd`,
+`q-adversarial`, `q-threat-model`, `q-computer-use`). These optional project addenda extend the
+suite for this repository.
 
 When the file is absent, continue with detected values and defaults, and state them once in one
 line: `q config: none; inferred tracker=github integration=github parent=origin/main`. Suggest

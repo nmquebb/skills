@@ -65,7 +65,7 @@ amendment grants no authority for unrelated publication.
 | --- | --- | --- | --- |
 | `q-lifecycle:v1 slug=<slug> policy=<policy>` | Pull request body (github) or landing commit message (local) | `q-implement`, `q-reconcile` | `q-reconcile`, `q-archive` |
 | `q-triage:v1:start` … `q-triage:v1:end` | Issue description or local issue file | `q-triage` | `q-implement`, `q-reconcile`, `q-feedback` |
-| `q-triage-proposal:v1` | GitHub issue comment | `q-triage` | `q-triage` |
+| `q-triage-proposal:v1` … `/q-triage-proposal:v1` | GitHub issue comment | `q-triage` | `q-triage` |
 | `q-reconcile-complete:v1` | Pull request comment (github), ledger or delivery record (local) | `q-reconcile` | `q-archive`, `q-feedback` |
 | `q-archive-complete:v1` | Pull request comment (github) or the delivery record's `## Archive completion` section (local) | `q-archive` | `q-archive`, `q-feedback` |
 | `q-roadmap:v1` | Local roadmap file | `q-roadmap` | `q-roadmap`, lifecycle phases |

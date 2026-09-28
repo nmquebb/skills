@@ -82,10 +82,11 @@ manual-risk gate keep their separate triggers and budgets.
 ## Provider fallback
 
 When a configured route's provider is exhausted (a session, weekly, model, or spend limit) or fails
-three times server-side within thirty minutes (5xx, overloaded, 429), fall back to the configured
-equivalent on another provider at the same tier and effort, when routes name one; a single
-transient error is a retry. Record the fallback route and trigger in the ledger or issue and return
-to the primary at the next phase gate.
+three times server-side within thirty minutes (5xx, overloaded, 429), fall back to the equivalent
+the project names for that model on another provider (in `.agents/q/workflow.md` or project
+guidance), at the same tier and effort; a single transient error is a retry. When the project names
+none, report the exhaustion and ask before substituting. Record the fallback route and trigger in
+the ledger or issue and return to the primary at the next phase gate.
 
 ## Launchers
 

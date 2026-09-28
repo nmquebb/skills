@@ -41,8 +41,9 @@ without changing its color or description.
 ## Asynchronous approval
 
 When automation dispatches triage instead of an interactive chat, or the user asks for approval on
-GitHub, present the proposal as one issue comment delimited by `<!-- q-triage-proposal:v1 -->`
-markers, containing the complete drafted block and any unresolved decision frontier.
+GitHub, present the proposal as one issue comment that opens with `<!-- q-triage-proposal:v1 -->`
+and closes with `<!-- /q-triage-proposal:v1 -->`, containing the complete drafted block and any
+unresolved decision frontier.
 
 - Add the comment's database ID and a lowercase `sha256` digest of the proposal payload between the
   markers as the lines `Proposal comment ID: <id>` and `Proposal digest: sha256:<digest>`.

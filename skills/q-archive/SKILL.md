@@ -79,7 +79,9 @@ Commit `docs: archive <slug>` on the working branch, then publish per `archive.p
 - `direct`: fetch again; if the parent advanced, rebase only this unpublished Archive-owned commit
   onto `<remote>/<parent>` and revalidate the exact path set, stopping on conflict. Push the explicit
   ref normally (`git push <remote> HEAD:refs/heads/<parent>`), never by force. If a protection rule
-  rejects it, fall back to `pull-request` and record why.
+  rejects it, keep the local commit, record the rejection on the merged pull request, and stop;
+  recommend `archive.publish: pull-request` for a protected parent. Publishing this archive as a
+  pull request instead needs the user's explicit direction.
 - `pull-request` (GitHub only): push the commit on `archive/<slug>` and open one
   documentation-only pull request titled `docs: archive <slug>`, reusing an open one for that branch.
   It carries no lifecycle marker. Merge it under merge-lean when host rules allow; otherwise leave it

@@ -2,9 +2,10 @@
 
 The lifecycle is opt-in: enter it only when the user explicitly invokes a lifecycle phase or asks
 for the q lifecycle. Ordinary build, fix, refactor, review, and investigation requests stay in the
-normal agent workflow. `q-adversarial`, `q-feedback`, `q-threat-model`, and `q-triage` are
-explicit-only utilities, not lifecycle phases. After opt-in, plain-language directions such as
-"continue," "skip that," "merge it," "pause," or "stop q" suffice.
+normal agent workflow. `q-adversarial`, `q-threat-model`, and `q-triage` are explicit-only
+utilities, not lifecycle phases; the Feedback and Improve phases run only when invoked. After
+opt-in, plain-language directions such as "continue," "skip that," "merge it," "pause," or "stop q"
+suffice.
 
 Every phase reads the project configuration and addenda per [config](config.md), including
 `.agents/q/workflow.md` when present. Before completing any delivery, lifecycle or ordinary, answer

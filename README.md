@@ -70,7 +70,7 @@ commands:
 Without a configuration file, skills infer GitHub or local from the remote and `gh` authentication,
 and confirm before their first remote write. Project-specific rules go in addenda:
 `.agents/q/<skill>.md` (for example `.agents/q/implement.md`) extends that skill for your repository,
-and `.agents/q/workflow.md` extends every lifecycle phase. The
+and `.agents/q/workflow.md` extends every skill except the standalone ones. The
 [configuration reference](skills/q-workflow/references/config.md) lists every key.
 
 ## Multi-agent setups
