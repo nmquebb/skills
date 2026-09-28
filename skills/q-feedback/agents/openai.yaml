@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Feedback"
+  short_description: "Capture feedback or resume q work"
+  default_prompt: "Use $q-feedback to capture this workflow feedback or resume the relevant q work."
+
+policy:
+  allow_implicit_invocation: false

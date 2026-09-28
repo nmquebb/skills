@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Plan"
+  short_description: "Plan an approved q specification"
+  default_prompt: "Use $q-plan to approve a decision-sufficient plan for this delivery and continue to Reconcile Prepare."
+
+policy:
+  allow_implicit_invocation: false

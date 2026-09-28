@@ -1,0 +1,71 @@
+name: ci
+
+# Validates every push and pull request, including public-API compatibility with the current major
+# channel. A push to main that passes is the release: CI fast-forwards the channel branch (CHANNEL)
+# to it. See docs/distribution.md.
+
+on:
+  push:
+    branches: [main, "v[0-9]*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # The major channel main currently feeds. Change it only in a breaking release.
+  CHANNEL: v1
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # check-compat reads Compat-Reviewed trailers since the channel
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate skills and manifests
+        run: node scripts/validate.mjs
+      - name: Test suite scripts
+        run: node --test "tests/*.test.mjs"
+      - name: Check compatibility with the channel
+        run: |
+          if git ls-remote --exit-code --heads origin "$CHANNEL" >/dev/null; then
+            git fetch --no-tags origin "$CHANNEL:refs/remotes/origin/$CHANNEL"
+          fi
+          node scripts/check-compat.mjs "origin/$CHANNEL"
+      - name: Check shell scripts
+        run: |
+          for script in skills/*/scripts/*.sh; do
+            [ -e "$script" ] || continue
+            bash -n "$script"
+          done
+
+  promote:
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: promote
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fast-forward the channel branch
+        run: |
+          set -eu
+          if git ls-remote --exit-code --heads origin "$CHANNEL" >/dev/null; then
+            git fetch --no-tags origin "$CHANNEL"
+            if ! git merge-base --is-ancestor "origin/$CHANNEL" HEAD; then
+              echo "::error::$CHANNEL has commits main lacks; refusing to move it. See docs/distribution.md."
+              exit 1
+            fi
+          fi
+          git push origin "HEAD:refs/heads/$CHANNEL"
+          echo "Promoted $(git rev-parse --short HEAD) to $CHANNEL"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Q Code Quality"
+  short_description: "Verify code quality and architectural fit"
+  default_prompt: "Use $q-code-quality to verify this code change against the repository's quality, style, and architecture standards."

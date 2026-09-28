@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Adversarial Review"
+  short_description: "Run an adjudicated two-reviewer adversarial review"
+  default_prompt: "Use $q-adversarial to run two independent reviews, adjudicate disagreements, and surface every decision."
+
+policy:
+  allow_implicit_invocation: false

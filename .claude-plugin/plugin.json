@@ -1,0 +1,13 @@
+{
+  "name": "q",
+  "displayName": "q skills",
+  "description": "An opt-in spec → plan → implement → archive delivery lifecycle with issue triage, plus code-quality review, test-first development, adversarial review, threat modeling, and computer-use evidence. Works with GitHub or purely local workflows.",
+  "author": {
+    "name": "Nick Quebbeman",
+    "url": "https://github.com/nmquebb"
+  },
+  "homepage": "https://github.com/nmquebb/skills",
+  "repository": "https://github.com/nmquebb/skills",
+  "license": "MIT",
+  "keywords": ["skills", "workflow", "spec", "planning", "code-review", "tdd", "triage", "threat-model"]
+}

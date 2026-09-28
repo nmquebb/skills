@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Threat Model"
+  short_description: "Create, refresh, or audit the repository threat model"
+  default_prompt: "Use $q-threat-model to create or refresh the canonical repository threat model."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,80 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["role", "targetSummary", "decisions", "disagreements", "coverage", "limitations"],
+  "properties": {
+    "role": { "type": "string", "const": "adjudicator" },
+    "targetSummary": { "type": "string", "minLength": 1 },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "sourceFindingIds",
+          "status",
+          "severity",
+          "rationale",
+          "evidenceVerified",
+          "requiredAction",
+          "userQuestion",
+          "viablePositions"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^ADV-[0-9]{3}$" },
+          "title": { "type": "string", "minLength": 1 },
+          "sourceFindingIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^(A|B)-[0-9]{3}$" }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["confirmed", "dismissed", "debate-required", "user-feedback-required"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "rationale": { "type": "string", "minLength": 1 },
+          "evidenceVerified": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "requiredAction": { "type": ["string", "null"] },
+          "userQuestion": { "type": ["string", "null"] },
+          "viablePositions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "disagreements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decisionId", "question", "reviewerAPosition", "reviewerBPosition"],
+        "properties": {
+          "decisionId": { "type": "string", "pattern": "^ADV-[0-9]{3}$" },
+          "question": { "type": "string", "minLength": 1 },
+          "reviewerAPosition": { "type": "string", "minLength": 1 },
+          "reviewerBPosition": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

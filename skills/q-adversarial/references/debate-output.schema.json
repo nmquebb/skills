@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["role", "responses"],
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": ["reviewer-a", "reviewer-b"]
+    },
+    "responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decisionId", "position", "argument", "evidence", "proposedDisposition"],
+        "properties": {
+          "decisionId": { "type": "string", "pattern": "^ADV-[0-9]{3}$" },
+          "position": {
+            "type": "string",
+            "enum": ["maintain", "revise", "withdraw"]
+          },
+          "argument": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "proposedDisposition": {
+            "type": "string",
+            "enum": ["confirm", "dismiss", "user-feedback-required"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Implement"
+  short_description: "Implement approved q work as one ready candidate"
+  default_prompt: "Use $q-implement to deliver approved lifecycle work with one owner, slice re-grounding, and independent final review, or deliver an approved triaged issue directly, as one ready candidate."
+
+policy:
+  allow_implicit_invocation: false

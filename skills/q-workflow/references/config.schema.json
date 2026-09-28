@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/nmquebb/skills/v1/skills/q-workflow/references/config.schema.json",
+  "title": "q skill suite project configuration",
+  "description": "The .agents/q/config.yaml contract. See config.md beside this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "tracker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "enum": [
+            "github",
+            "local",
+            "custom"
+          ],
+          "x-default": "github when origin is on github.com and gh auth status succeeds; otherwise local"
+        },
+        "repo": {
+          "type": "string",
+          "pattern": "^[^/\\s]+/[^/\\s]+$",
+          "x-default": "owner/name of git.remote"
+        },
+        "dir": {
+          "type": "string",
+          "default": "docs/issues"
+        },
+        "adapter": {
+          "type": "string",
+          "x-default": "none; required for custom"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "proposed": {
+              "type": "string",
+              "default": "triage: proposed"
+            },
+            "questions": {
+              "type": "string",
+              "default": "triage: questions"
+            },
+            "ready": {
+              "type": "string",
+              "default": "ready for implementation"
+            },
+            "inProgress": {
+              "type": "string",
+              "default": "in progress"
+            },
+            "inReview": {
+              "type": "string",
+              "default": "in review"
+            },
+            "blocked": {
+              "type": "string",
+              "default": "blocked"
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "custom"
+          }
+        },
+        "required": [
+          "backend"
+        ]
+      },
+      "then": {
+        "required": [
+          "adapter"
+        ]
+      }
+    },
+    "integration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "enum": [
+            "github",
+            "local"
+          ],
+          "x-default": "github when origin is on github.com and gh auth status succeeds; otherwise local"
+        },
+        "mergeMethod": {
+          "enum": [
+            "merge",
+            "squash",
+            "rebase"
+          ],
+          "default": "merge"
+        },
+        "push": {
+          "type": "boolean",
+          "x-default": "true for github, false for local"
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "remote": {
+          "type": "string",
+          "default": "origin"
+        },
+        "parentBranch": {
+          "type": "string",
+          "x-default": "The remote's default branch (git symbolic-ref refs/remotes/<remote>/HEAD), else the current branch"
+        },
+        "workspace": {
+          "enum": [
+            "worktree",
+            "branch"
+          ],
+          "default": "worktree"
+        },
+        "worktreeRoot": {
+          "type": "string",
+          "default": "~/.q/worktrees/{repo}"
+        }
+      }
+    },
+    "branches": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lifecycle": {
+          "type": "string",
+          "default": "{type}/{slug}"
+        },
+        "issue": {
+          "type": "string",
+          "x-default": "{type}/GH-{id}-{slug} for github; {type}/issue-{id}-{slug} otherwise"
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "work": {
+          "type": "string",
+          "default": "docs/work-in-progress"
+        },
+        "deliveries": {
+          "type": "string",
+          "default": "docs/deliveries"
+        },
+        "decisions": {
+          "type": "string",
+          "default": "docs/decisions"
+        },
+        "threatModel": {
+          "type": "string",
+          "default": "docs/threat-model.md"
+        },
+        "feedback": {
+          "type": "string",
+          "default": "docs/workflow/pending-feedback.md"
+        }
+      }
+    },
+    "roadmap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "enum": [
+            "none",
+            "local",
+            "github-project"
+          ],
+          "default": "none"
+        },
+        "file": {
+          "type": "string",
+          "default": "docs/roadmap.md"
+        },
+        "owner": {
+          "type": "string",
+          "x-default": "none"
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "x-default": "none"
+        }
+      },
+      "if": {
+        "properties": {
+          "backend": {
+            "const": "github-project"
+          }
+        },
+        "required": [
+          "backend"
+        ]
+      },
+      "then": {
+        "required": [
+          "owner",
+          "number"
+        ]
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "codeStyle": {
+          "$ref": "#/$defs/paths",
+          "default": []
+        },
+        "testing": {
+          "$ref": "#/$defs/paths",
+          "default": []
+        },
+        "architecture": {
+          "$ref": "#/$defs/paths",
+          "default": []
+        },
+        "baseline": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "install": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "formatCheck": {
+          "type": "string"
+        },
+        "lint": {
+          "type": "string"
+        },
+        "typecheck": {
+          "type": "string"
+        },
+        "test": {
+          "type": "string"
+        },
+        "build": {
+          "type": "string"
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "boundaries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ask",
+          "ifYes"
+        ],
+        "properties": {
+          "ask": {
+            "type": "string"
+          },
+          "ifYes": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "agents": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "launcher": {
+          "enum": [
+            "native",
+            "paseo"
+          ],
+          "default": "native"
+        },
+        "routes": {
+          "type": "object",
+          "additionalProperties": false,
+          "propertyNames": {
+            "enum": [
+              "specOwner",
+              "planOwner",
+              "implementationOwner",
+              "worker",
+              "workerNarrow",
+              "workerComplex",
+              "workerUi",
+              "escalation",
+              "sliceReviewer",
+              "finalReviewer",
+              "specReviewer",
+              "planReviewer",
+              "riskGate",
+              "reviewerA",
+              "reviewerB",
+              "adjudicator",
+              "evidence",
+              "bookkeeping"
+            ]
+          },
+          "patternProperties": {
+            ".*": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {
+          "enum": [
+            "after-merge",
+            "automation"
+          ],
+          "default": "after-merge"
+        },
+        "publish": {
+          "enum": [
+            "direct",
+            "pull-request",
+            "local"
+          ],
+          "x-default": "direct for github; local for local"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "integration": {
+            "properties": {
+              "host": {
+                "const": "local"
+              }
+            },
+            "required": [
+              "host"
+            ]
+          }
+        },
+        "required": [
+          "integration"
+        ]
+      },
+      "then": {
+        "properties": {
+          "archive": {
+            "properties": {
+              "publish": {
+                "const": "local"
+              }
+            }
+          },
+          "integration": {
+            "properties": {
+              "mergeMethod": {
+                "enum": [
+                  "merge",
+                  "squash"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "integration": {
+            "properties": {
+              "host": {
+                "const": "github"
+              }
+            },
+            "required": [
+              "host"
+            ]
+          }
+        },
+        "required": [
+          "integration"
+        ]
+      },
+      "then": {
+        "properties": {
+          "archive": {
+            "properties": {
+              "publish": {
+                "enum": [
+                  "direct",
+                  "pull-request"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

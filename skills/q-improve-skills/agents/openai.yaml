@@ -1,0 +1,7 @@
+interface:
+  display_name: "Q Improve Skills"
+  short_description: "Evaluate evidence and improve the q skills"
+  default_prompt: "Use $q-improve-skills to evaluate this evidence and apply approved improvements to the q suite or this project's q configuration."
+
+policy:
+  allow_implicit_invocation: false

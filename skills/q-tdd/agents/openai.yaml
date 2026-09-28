@@ -1,0 +1,4 @@
+interface:
+  display_name: "Q TDD"
+  short_description: "Observe the intended failure before code and keep red/green evidence"
+  default_prompt: "Use $q-tdd to choose a test for this behavior change, observe it fail for the intended missing behavior before changing code, and keep the red and green evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Q Computer Use"
+  short_description: "Drive the Simulator, local web, and Mac for evidence"
+  default_prompt: "Use $q-computer-use to obtain running-app evidence: run its doctor, then drive the iOS Simulator or local web app and return the evidence table."

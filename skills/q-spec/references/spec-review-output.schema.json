@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["role", "verdict", "findings"],
+  "properties": {
+    "role": { "type": "string", "const": "spec-review" },
+    "verdict": { "type": "string", "enum": ["pass", "changes-required"] },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "category", "evidence", "impact", "requiredResolution"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["discoverable", "preference"] },
+          "category": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "impact": { "type": "string" },
+          "requiredResolution": { "type": "string" }
+        }
+      }
+    }
+  }
+}

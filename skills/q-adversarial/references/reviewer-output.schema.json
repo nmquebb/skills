@@ -1,0 +1,75 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["role", "targetSummary", "verdict", "findings", "coverage", "uncertainties"],
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": ["reviewer-a", "reviewer-b"]
+    },
+    "targetSummary": { "type": "string", "minLength": 1 },
+    "verdict": {
+      "type": "string",
+      "enum": ["no-material-findings", "findings"]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "category",
+          "claim",
+          "evidence",
+          "impact",
+          "recommendation",
+          "confidence",
+          "requiresUserPreference"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(A|B)-[0-9]{3}$" },
+          "title": { "type": "string", "minLength": 1 },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "category": { "type": "string", "minLength": 1 },
+          "claim": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["source", "location", "observation"],
+              "properties": {
+                "source": { "type": "string", "minLength": 1 },
+                "location": { "type": "string", "minLength": 1 },
+                "observation": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "impact": { "type": "string", "minLength": 1 },
+          "recommendation": { "type": "string", "minLength": 1 },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "requiresUserPreference": { "type": "boolean" }
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
