@@ -9,7 +9,8 @@ Consumer-visible changes, newest first. Projects on the `v1` channel receive eve
 
 - `.agents/q/workflow.md` extends every skill except the standalone ones, including Triage,
   Feedback, Roadmap, and Improve, so project-wide rules reach them.
-- GitHub triage proposals close with `<!-- /q-triage-proposal:v1 -->`.
+- GitHub triage proposals close with `<!-- /q-triage-proposal:v1 -->`; readers still accept a
+  proposal whose closing marker repeats the opening one.
 - A rejected direct Archive push keeps the commit and stops; it no longer falls back to an archive
   pull request.
 - Provider fallback uses the equivalents the project names, and asks when it names none.
