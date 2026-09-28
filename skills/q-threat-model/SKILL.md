@@ -56,12 +56,13 @@ how it is scoped, with its value redacted.
 
 ## Map the system
 
-Work outward from the entry points the repository exposes. Check for each of these and record only
-those present: HTTP handlers and middleware; authentication; sessions and cookies; SSR and proxy
-routes; host or subdomain resolution; uploads and object storage; email and messaging; webhooks;
-background, deferred, or post-commit work; database access; and CLI, IPC, desktop, or mobile
-surfaces. Follow each into the owning service and its data access, noting where ownership or trust
-changes.
+Work outward from the entry points the repository exposes, found with Quick Scope's MCP tools
+(`code_search`; `code_symbols` with references) or `qs` CLI when available, else the project's
+search tools. Check for each of these and record only those present: HTTP handlers and
+middleware; authentication; sessions and cookies; SSR and proxy routes; host or subdomain
+resolution; uploads and object storage; email and messaging; webhooks; background, deferred, or
+post-commit work; database access; and CLI, IPC, desktop, or mobile surfaces. Follow each into the
+owning service and its data access, noting where ownership or trust changes.
 
 For every trust boundary record source and destination, data crossing, channel, guarantees
 (authentication, authorization, origin checks, encryption, rate limits), and validation or

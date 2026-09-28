@@ -7,6 +7,9 @@ Consumer-visible changes, newest first. Projects on the `v1` channel receive eve
 
 ### 2026-09-28
 
+- Code retrieval starts with Quick Scope (`qs`) when its MCP tools or CLI are available, and falls
+  back to the project's and host's tools for what it does not cover; Threat Model maps entry points
+  the same way.
 - With `git.remote: none`, skills skip every fetch and push; Archive with `archive.publish: local`
   works on the parent checked out in the control checkout.
 - Triage files the issue it triages when the user explicitly asks it to.

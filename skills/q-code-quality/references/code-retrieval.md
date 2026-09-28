@@ -5,6 +5,28 @@ the question is answered; do not dump packages or rebuild a graph with serial te
 graph tool or language server can answer. The project's tool routing in its nearest `AGENTS.md`
 overrides this reference.
 
+## Start with Quick Scope
+
+When the host exposes Quick Scope's MCP tools (`code_search`, `code_symbols`, `code_deps`; a host
+that loads MCP tools on demand finds them by name), use them for the questions they cover;
+otherwise, when `qs` is on `PATH`, run its CLI from inside the project. One warm server answers for
+the current project, and for its linked projects with `projects: ["*"]` (`--all`) when the question
+spans them.
+
+| Question | MCP tool | CLI |
+| --- | --- | --- |
+| Known text or a pattern | `code_search`, mode `text` or `regex` | `qs search [-m regex]` |
+| A file by approximate name, or current Git work (`git:modified`) | `code_search`, mode `files` | `qs search -m files` |
+| Behavior or concept; documentation by topic with `paths: ["*.md"]` | `code_search`, mode `semantic` | `qs search -m semantic [-g '*.md']` |
+| Where a symbol is defined, a reuse check, or a file's or directory's outline | `code_symbols` with `name` or `path` | `qs symbols <name>`, `qs symbols --path <path>` |
+| Callers, references, or impact | `code_symbols` with `references: true`; `code_deps` for a TS/JS file's importers | `qs symbols <name> --refs`, `qs deps <file>` |
+
+Answers show the matching lines; read more of a file with your own tools rather than searching it
+again. Narrow with `paths` (`-g`), and put alternatives in one regex (`spawn|exec`). When semantic
+search reports `not indexed`, search lexically; run `qs index` only when the user or project
+guidance asks, because it writes the index into the project. For what qs does not cover, such as
+AST shape, or cannot answer, use the table below and mention the gap in your report.
+
 ## Choose the tool by question
 
 | Question | Tool |

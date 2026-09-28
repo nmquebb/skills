@@ -64,3 +64,20 @@ settled choice; read only the last ~40 lines before appending. Format:
   Codex's model-visible listing, and pi's loader in the consumer; independent GPT-6 Sol review (1
   blocker, 2 major, 3 minor, 1 nit, all addressed)
 - Next evidence: the first local lifecycle delivery and local triaged issue
+
+### 2026-09-28 — Quick Scope for code retrieval
+
+- Source: the author, adopting Quick Scope (`qs`, their code-intelligence CLI and MCP server
+  wrapping fff, CocoIndex Code, Serena, and AgentMap) across the suite and its consumers
+- Problem: code retrieval named tool kinds only, so each project routed its own fff, semantic-index,
+  and graph tools, and agents started three servers for one question type each
+- Decision: adopted — code retrieval starts with qs's MCP tools, else its CLI, and keeps the
+  tool-kind table as the fallback for what qs does not cover; building an index stays with the user
+  or project guidance because it writes into the project; standalone Threat Model names qs
+  inline for mapping entry points, since it cannot depend on `q-code-quality`
+- Owners: `q-code-quality` code retrieval; `q-threat-model`
+- Validation: qs's agent benchmark (28 tasks x 3 repeats): with qs, Luna went from 96% to 100%
+  correct and read half the tool output, at more time and input tokens
+  (`20260928-124816-baseline`); after tuning, Luna and Sol answered every task
+  (`20260928-152355-tuned2`)
+- Next evidence: lifecycle deliveries in both consumers using qs, and gaps agents report
