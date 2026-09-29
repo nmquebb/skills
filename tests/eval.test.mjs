@@ -264,6 +264,37 @@ describe("eval.mjs", () => {
     }
   })
 
+  test("selects judged trials of a finished run for re-judging", () => {
+    const suiteDir = mkdtempSync(join(tmpdir(), "q-eval-suite-"))
+    const runDir = mkdtempSync(join(tmpdir(), "q-eval-run-"))
+    try {
+      const arms = { a: { host: "claude", model: "m", effort: "low" } }
+      const judges = { claude: { host: "codex", model: "n", effort: "low" } }
+      writeFileSync(join(suiteDir, "suite.json"), JSON.stringify({ arms, judges }))
+      writeFileSync(
+        join(suiteDir, "cases.json"),
+        JSON.stringify([
+          { id: "judged", prompt: "hi", graders: [{ type: "judge", name: "j", claim: "c" }] },
+          { id: "plain", prompt: "hi", graders: [{ type: "final", name: "f", pattern: "x" }] },
+        ]),
+      )
+      writeFileSync(join(runDir, "run.json"), JSON.stringify({ suiteDir, arms, judges }))
+      const row = (name, graders) => JSON.stringify({ case: name, arm: "a", trial: `${name}__a__r1`, graders })
+      writeFileSync(
+        join(runDir, "results.jsonl"),
+        `${row("judged", [{ name: "j", type: "judge", passed: true }])}\n${row("plain", [{ name: "f", type: "final", passed: true }])}\n`,
+      )
+      const result = spawnSync("node", [join(ROOT, "scripts", "eval.mjs"), "regrade", runDir, "--dry-run"], {
+        encoding: "utf8",
+      })
+      assert.equal(result.status, 0, result.stderr)
+      assert.match(result.stdout, /regrading 1 of 1 judged trials/)
+    } finally {
+      rmSync(suiteDir, { recursive: true, force: true })
+      rmSync(runDir, { recursive: true, force: true })
+    }
+  })
+
   test("refuses a judge from the family under test", () => {
     const suiteDir = mkdtempSync(join(tmpdir(), "q-eval-suite-"))
     try {

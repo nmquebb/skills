@@ -11,6 +11,7 @@
 //        [--judge-votes N] [--keep] [--dry-run] [--yes] [--resume <run-dir>]
 //   node scripts/eval.mjs report <run-dir>
 //   node scripts/eval.mjs compare <before-run-dir> <after-run-dir> [--metric pass|score]
+//   node scripts/eval.mjs regrade <run-dir> [--cases a,b] [--sample N] [--votes N] [--apply] [--dry-run]
 //   node scripts/eval.mjs split <suite> [--seed N] [--test-fraction F] [--force]
 // <suite> is a directory holding suite.json, or the name of one under evals/.
 
@@ -540,6 +541,14 @@ async function pool(items, concurrency, worker) {
   return results
 }
 
+/** A scratch directory and the environment every agent and judge run starts from. */
+function runEnvironment() {
+  const scratch = mkdtempSync(join(tmpdir(), "q-eval-run-"))
+  const emptyConfig = join(scratch, "gitconfig")
+  writeFileSync(emptyConfig, "")
+  return { scratch, environment: { ...baseEnvironment(), ...gitEnvironment(emptyConfig) } }
+}
+
 function hostVersion(bin) {
   const result = run(bin, ["--version"])
   return result.status === 0 ? result.stdout.trim().split("\n")[0] : null
@@ -623,10 +632,7 @@ async function runCommand(positional, flags) {
     fail(`${trials.length} trials spend real usage; rerun with --yes to confirm`)
   }
 
-  const scratch = mkdtempSync(join(tmpdir(), "q-eval-run-"))
-  const emptyConfig = join(scratch, "gitconfig")
-  writeFileSync(emptyConfig, "")
-  const environment = { ...baseEnvironment(), ...gitEnvironment(emptyConfig) }
+  const { scratch, environment } = runEnvironment()
   let skillsDir = resolve(String(flags.skills ?? join(ROOT, "skills")))
   let skillsRev = run("git", ["-C", ROOT, "rev-parse", "HEAD"]).stdout.trim()
   let skillsDirty = run("git", ["-C", ROOT, "status", "--porcelain", "--", "skills"]).stdout.trim() !== ""
@@ -897,6 +903,86 @@ function compareCommand(positional, flags) {
   console.log("\nDeltas are after minus before, per case over its repeats, with 95% bootstrap intervals over cases.")
 }
 
+/**
+ * Re-judges stored final messages with the run's own judges and the suite's current claims, and
+ * reports how often a verdict changes: a judge that disagrees with itself on identical output cannot
+ * rank arms. `--apply` writes the new verdicts into the run (after a claim was reworded), keeping the
+ * previous results beside it.
+ */
+async function regradeCommand(positional, flags) {
+  const runDir = resolve(positional[0] ?? fail("regrade needs a run directory"))
+  const meta = readJson(join(runDir, "run.json"))
+  const suite = { ...loadSuite(meta.suiteDir), judges: meta.judges ?? undefined }
+  const cases = new Map(suite.cases.map((entry) => [entry.id, entry]))
+  const wanted = flags.cases ? new Set(String(flags.cases).split(",")) : null
+  const judged = (row) => row.graders?.some((grader) => grader.type === "judge" && grader.passed !== null)
+  const all = loadResults(runDir)
+  const rows = all.filter(
+    (row) =>
+      judged(row) &&
+      cases.has(row.case) &&
+      !cases.get(row.case).judgeContext &&
+      (!wanted || wanted.has(row.case)),
+  )
+  const sample = shuffle(rows, random(Number(flags.seed ?? 1))).slice(0, Number(flags.sample ?? rows.length))
+  console.log(`eval: regrading ${sample.length} of ${rows.length} judged trials in ${runDir}`)
+  if (flags["dry-run"]) {
+    return
+  }
+
+  const { scratch, environment } = runEnvironment()
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)
+  const flips = []
+  let compared = 0
+  await pool(sample, Number(flags.concurrency ?? 2), async (row) => {
+    const trialDir = join(runDir, "trials", row.trial, `regrade-${stamp}`)
+    mkdirSync(trialDir, { recursive: true })
+    const final = readFileSync(join(runDir, "trials", row.trial, "final.txt"), "utf8")
+    const { verdicts } = await judgeTrial({
+      suite,
+      entry: cases.get(row.case),
+      arm: meta.arms[row.arm],
+      trial: { final },
+      trialDir,
+      context: null,
+      votes: Number(flags.votes ?? 1),
+      environment,
+    })
+    for (const grader of row.graders.filter((item) => item.type === "judge" && item.passed !== null)) {
+      const again = verdicts.get(grader.name)
+      if (!again || again.passed === null) {
+        continue
+      }
+
+      compared++
+      if (again.passed !== grader.passed) {
+        flips.push({ trial: row.trial, claim: grader.name, before: grader.passed, after: again.passed, detail: again.detail })
+      }
+
+      if (flags.apply) {
+        Object.assign(grader, { passed: again.passed, detail: again.detail, regraded: stamp })
+      }
+    }
+
+    if (flags.apply) {
+      Object.assign(row, score(row.graders))
+      writeFileSync(join(runDir, "trials", row.trial, "result.json"), `${JSON.stringify(row, null, 2)}\n`)
+    }
+  })
+  rmSync(scratch, { recursive: true, force: true })
+  if (flags.apply) {
+    cpSync(join(runDir, "results.jsonl"), join(runDir, `results.before-regrade-${stamp}.jsonl`))
+    writeFileSync(join(runDir, "results.jsonl"), all.map((row) => `${JSON.stringify(row)}\n`).join(""))
+    reportText(runDir)
+  }
+  writeFileSync(join(runDir, `regrade-${stamp}.json`), `${JSON.stringify({ compared, flips }, null, 2)}\n`)
+  console.log(`eval: ${compared} verdicts re-judged, ${flips.length} changed (${percent(compared ? flips.length / compared : null)})`)
+  for (const flip of flips) {
+    const verdict = (passed) => (passed ? "PASS" : "FAIL")
+    console.log(`  ${flip.trial} ${flip.claim}: ${verdict(flip.before)} -> ${verdict(flip.after)}: ${flip.detail.slice(0, 200)}`)
+  }
+}
+
 function splitCommand(positional, flags) {
   const suite = loadSuite(positional[0] ?? fail("split needs a suite"))
   const path = join(suite.dir, "split.json")
@@ -922,6 +1008,8 @@ if (isMain) {
     console.log(reportText(resolve(positional[0] ?? fail("report needs a run directory"))))
   } else if (command === "compare") {
     compareCommand(positional, flags)
+  } else if (command === "regrade") {
+    await regradeCommand(positional, flags)
   } else if (command === "split") {
     splitCommand(positional, flags)
   } else {

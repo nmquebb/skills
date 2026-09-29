@@ -29,6 +29,7 @@ node scripts/eval.mjs report ~/.cache/q-evals/review-effort/<run>
 node scripts/eval.mjs split review-effort                            # once, before hillclimbing
 node scripts/eval.mjs run review-effort --split train --label round-1 --yes
 node scripts/eval.mjs compare <baseline-run> <round-run>
+node scripts/eval.mjs regrade <run> --sample 40                      # judge consistency
 node scripts/eval.mjs run /path/to/private-suite                     # a suite outside evals/
 ```
 
@@ -67,7 +68,8 @@ intervals resampled over cases, then grader and case pass rates, usage, and warn
 (an arm at 95% or more), noise wider than the suite's `minEffect`, more effort doing worse on the
 same model, infrastructure failures, and judge disagreement. `compare` pairs two runs case by case
 and, when the suite has a `split.json`, applies the keep-or-revert rule to the train and test
-deltas.
+deltas. `regrade` asks the run's judges again about stored final messages and lists every verdict
+that changed; check it before trusting judge claims, and tighten a claim that flips.
 
 ## Suite format
 
