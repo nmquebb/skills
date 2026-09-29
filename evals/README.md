@@ -27,6 +27,7 @@ node scripts/eval.mjs run review-effort --reps 1 --label pilot       # the suite
 node scripts/eval.mjs run review-effort --arms opus-low,sol-medium --yes
 node scripts/eval.mjs report ~/.cache/q-evals/review-effort/<run>
 node scripts/eval.mjs split review-effort                            # once, before hillclimbing
+node scripts/eval.mjs split review-effort --extend --strata 2        # assign only new cases
 node scripts/eval.mjs run review-effort --split train --label round-1 --yes
 node scripts/eval.mjs compare <baseline-run> <round-run>
 node scripts/eval.mjs regrade <run> --sample 40                      # judge consistency

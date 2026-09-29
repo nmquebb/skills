@@ -106,31 +106,32 @@ export function pairedDelta(before, after, value, { samples = 5000, seed = 1 } =
 }
 
 /**
- * A fixed train/test split, stratified by each case's first tag, so the hillclimber can read train
- * transcripts while test stays unseen. Strata too small to spare a test case stay in train.
+ * A fixed train/test split, stratified by each case's leading tags (the first `strata` of them), so
+ * the hillclimber can read train transcripts while test stays unseen. Strata too small to spare a
+ * test case stay in train.
  */
-export function split(cases, { seed, testFraction = 0.4 }) {
+export function split(cases, { seed, testFraction = 0.4, strata = 1 }) {
   const next = random(seed)
-  const strata = new Map()
+  const groups = new Map()
   for (const entry of [...cases].sort((left, right) => left.id.localeCompare(right.id))) {
-    const tag = entry.tags?.[0] ?? ""
-    if (!strata.has(tag)) {
-      strata.set(tag, [])
+    const tag = (entry.tags ?? []).slice(0, strata).join("/")
+    if (!groups.has(tag)) {
+      groups.set(tag, [])
     }
 
-    strata.get(tag).push(entry.id)
+    groups.get(tag).push(entry.id)
   }
 
   const train = []
   const test = []
-  for (const tag of [...strata.keys()].sort()) {
-    const members = shuffle(strata.get(tag), next)
+  for (const tag of [...groups.keys()].sort()) {
+    const members = shuffle(groups.get(tag), next)
     const count = Math.round(members.length * testFraction)
     test.push(...members.slice(0, count))
     train.push(...members.slice(count))
   }
 
-  return { seed, testFraction, train: train.sort(), test: test.sort() }
+  return { seed, testFraction, strata, train: train.sort(), test: test.sort() }
 }
 
 /**

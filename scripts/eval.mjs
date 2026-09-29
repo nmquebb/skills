@@ -12,7 +12,7 @@
 //   node scripts/eval.mjs report <run-dir>
 //   node scripts/eval.mjs compare <before-run-dir> <after-run-dir> [--metric pass|score]
 //   node scripts/eval.mjs regrade <run-dir> [--cases a,b] [--sample N] [--votes N] [--apply] [--dry-run]
-//   node scripts/eval.mjs split <suite> [--seed N] [--test-fraction F] [--force]
+//   node scripts/eval.mjs split <suite> [--extend] [--strata N] [--seed N] [--test-fraction F] [--force]
 // <suite> is a directory holding suite.json, or the name of one under evals/.
 
 import { spawn, spawnSync } from "node:child_process"
@@ -983,17 +983,44 @@ async function regradeCommand(positional, flags) {
   }
 }
 
+/**
+ * Writes the suite's fixed train/test split. `--extend` assigns only cases the split does not name
+ * yet, leaving every earlier assignment alone, and records the extension; run it before any run of
+ * the change under test.
+ */
 function splitCommand(positional, flags) {
   const suite = loadSuite(positional[0] ?? fail("split needs a suite"))
   const path = join(suite.dir, "split.json")
-  if (existsSync(path) && !flags.force) {
-    fail(`${path} exists; a split is fixed once (pass --force to replace it and restart hillclimbing)`)
+  const options = { testFraction: Number(flags["test-fraction"] ?? 0.4), strata: Number(flags.strata ?? 1) }
+  if (flags.extend) {
+    if (!suite.split) {
+      fail(`--extend needs an existing ${path}`)
+    }
+
+    const assigned = new Set([...suite.split.train, ...suite.split.test])
+    const added = suite.cases.filter((entry) => !assigned.has(entry.id))
+    if (added.length === 0) {
+      fail("every case already has a split")
+    }
+
+    const seed = Number(flags.seed ?? seedOf(`${suite.name}:${added.map((entry) => entry.id).join(",")}`))
+    const extension = { date: new Date().toISOString().slice(0, 10), ...split(added, { seed, ...options }) }
+    const result = {
+      ...suite.split,
+      train: [...suite.split.train, ...extension.train].sort(),
+      test: [...suite.split.test, ...extension.test].sort(),
+      extensions: [...(suite.split.extensions ?? []), extension],
+    }
+    writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`)
+    console.log(`eval: ${suite.name}: added ${extension.train.length} train, ${extension.test.length} test -> ${path}`)
+    return
   }
 
-  const result = split(suite.cases, {
-    seed: Number(flags.seed ?? seedOf(suite.name)),
-    testFraction: Number(flags["test-fraction"] ?? 0.4),
-  })
+  if (existsSync(path) && !flags.force) {
+    fail(`${path} exists; a split is fixed once (pass --extend for new cases, or --force to restart hillclimbing)`)
+  }
+
+  const result = split(suite.cases, { seed: Number(flags.seed ?? seedOf(suite.name)), ...options })
   writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`)
   console.log(`eval: ${suite.name}: ${result.train.length} train, ${result.test.length} test -> ${path}`)
 }

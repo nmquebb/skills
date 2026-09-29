@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { spawnSync } from "node:child_process"
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { describe, test } from "node:test"
@@ -36,6 +36,16 @@ describe("stats", () => {
     assert.equal(result.test.filter((id) => id.startsWith("b")).length, 2)
     assert.ok(result.train.includes("solo"), "a one-case stratum stays in train")
     assert.deepEqual([...result.train, ...result.test].sort(), cases.map((entry) => entry.id).sort())
+  })
+
+  test("a split can stratify by more than the first tag", () => {
+    const cases = [
+      ...Array.from({ length: 3 }, (_, index) => ({ id: `d${index}`, tags: ["defect", "docs"] })),
+      ...Array.from({ length: 3 }, (_, index) => ({ id: `b${index}`, tags: ["defect", "behavior"] })),
+    ]
+    const result = split(cases, { seed: 5, testFraction: 0.4, strata: 2 })
+    assert.equal(result.test.filter((id) => id.startsWith("d")).length, 1)
+    assert.equal(result.test.filter((id) => id.startsWith("b")).length, 1)
   })
 
   test("case means average repeats before resampling cases", () => {
@@ -292,6 +302,32 @@ describe("eval.mjs", () => {
     } finally {
       rmSync(suiteDir, { recursive: true, force: true })
       rmSync(runDir, { recursive: true, force: true })
+    }
+  })
+
+  test("extends a fixed split with new cases only", () => {
+    const suiteDir = mkdtempSync(join(tmpdir(), "q-eval-suite-"))
+    try {
+      writeFileSync(join(suiteDir, "suite.json"), JSON.stringify({ arms: {} }))
+      const entry = (id, kind) => ({ id, tags: ["defect", kind], prompt: "p", graders: [{ type: "final", name: "g", pattern: "x" }] })
+      writeFileSync(
+        join(suiteDir, "cases.json"),
+        JSON.stringify([entry("old-a", "docs"), entry("old-b", "docs"), ...["n1", "n2", "n3", "n4", "n5"].map((id) => entry(id, "docs"))]),
+      )
+      writeFileSync(join(suiteDir, "split.json"), JSON.stringify({ seed: 1, train: ["old-a"], test: ["old-b"] }))
+      const result = spawnSync(
+        "node",
+        [join(ROOT, "scripts", "eval.mjs"), "split", suiteDir, "--extend", "--strata", "2"],
+        { encoding: "utf8" },
+      )
+      assert.equal(result.status, 0, result.stderr)
+      const extended = JSON.parse(readFileSync(join(suiteDir, "split.json"), "utf8"))
+      assert.ok(extended.train.includes("old-a") && extended.test.includes("old-b"), "earlier assignments stay")
+      assert.equal(extended.train.length + extended.test.length, 7)
+      assert.equal(extended.extensions.length, 1)
+      assert.equal(extended.extensions[0].test.length, 2)
+    } finally {
+      rmSync(suiteDir, { recursive: true, force: true })
     }
   })
 

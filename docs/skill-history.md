@@ -110,3 +110,39 @@ settled choice; read only the last ~40 lines before appending. Format:
   have no headroom, so they guard regressions and cost, not quality gains
 - Next evidence: a private review suite from the source project's confirmed review findings and
   escaped defects, with headroom below 95%, at three repeats across its configured reviewer routes
+
+### 2026-09-29 — Final-review effort and a q-code-quality hillclimb
+
+- Source: a private review suite from the source project: pull request heads replayed under the
+  `q-implement` final-review contract, first 23 (15 with confirmed defects the Codex review bot
+  found and the project fixed, 2 found in the pilot, 6 clean controls; train/test 14/9), then 42
+  (19 more defect cases for documentation claims, conventions, and automation; train/test 26/16,
+  extended without moving earlier cases); three repeats; judges from the other model family,
+  re-judging identical reviews at 1-3% disagreement
+- Authority: the author, "start code-quality hillclimb", then growing the suite and retesting
+  protocol order and severity calibration
+- Problem: at low effort, Opus 5.5 as final reviewer found 37% of confirmed defects and sent back
+  59% of defective deliveries; medium 56% and 78% (paired gains of 19 and 20 points beyond noise),
+  high no better than medium at 35% more cost, GPT-6 Sol medium level with medium. Every route
+  missed written conventions applied to a changed role and untrue documentation claims
+- Decision: rejected (reverted) — round 1 added a "check written statements" step to the review
+  protocol, which reviewers opened in 3 of 42 train runs, so it tested nothing; round 2 put the same
+  instruction in SKILL.md, which found the train naming defect (0% to 67%) but not the documentation
+  claims, and test fell (50% to 42% found); round 3 required reading the protocol first (read in 66
+  of 69 runs), and train defects found fell from 59% to 49%; round 4, on 42 cases, moved tracing
+  of changed behavior through its seams from the protocol into SKILL.md ahead of structure:
+  defects found +3 points on train and +2 on test, trial pass +5 and +4, all inside noise.
+  Severity calibration was not run: reviewers approved a defect they had reported in 8 train
+  trials across 4 cases and 2 test trials, so even perfect calibration adds at most 12 and 5
+  points against about 10 of noise. Hillclimbing stopped: of 32 train claims, 11 were never found
+  in 6 runs and 6 once or twice — documentation statements (7), conventions applied to a changed
+  role (4), behavior outside the diff (4), and tests that cannot fail (2) — and no wording change
+  reached them
+- Owners: none changed; the consumers' final-reviewer routes moved to medium in their own
+  repositories
+- Validation: 333 baseline runs, 69 per round for rounds 1-3 and 126 for round 4, no
+  infrastructure failures; decisions by the keep-or-revert rule on paired train and test deltas;
+  29 judge claims restated so consequences and fixes are examples, and stored reviews re-judged
+- Next evidence: a structural change measured as a pair of arms instead of more wording, such as
+  a documentation-statement check in final review when a change touches documentation or doc
+  comments; five repeats (noise about 8 points) before retesting severity calibration
