@@ -134,17 +134,21 @@ function loadCases(suite) {
   return cases.sort((left, right) => left.id.localeCompare(right.id))
 }
 
-/** The prompt with {{case:path}}, {{suite:path}}, and {{skills:path}} replaced by file contents. */
+/** `text` with {{case:path}}, {{suite:path}}, and {{skills:path}} replaced by file contents. */
+function renderText(text, entry, suite, skillsDir) {
+  const roots = { case: entry.dir, suite: suite.dir, skills: skillsDir }
+  return text.replace(/\{\{(case|suite|skills):([^}]+)\}\}/g, (_, root, path) =>
+    readFileSync(join(roots[root], path.trim()), "utf8").trimEnd(),
+  )
+}
+
 function renderPrompt(entry, suite, skillsDir) {
   const text = entry.promptFile ? readFileSync(join(entry.dir, entry.promptFile), "utf8") : entry.prompt
   if (typeof text !== "string" || text.trim() === "") {
     fail(`case ${entry.id}: no prompt`)
   }
 
-  const roots = { case: entry.dir, suite: suite.dir, skills: skillsDir }
-  return text.replace(/\{\{(case|suite|skills):([^}]+)\}\}/g, (_, root, path) =>
-    readFileSync(join(roots[root], path.trim()), "utf8").trimEnd(),
-  )
+  return renderText(text, entry, suite, skillsDir)
 }
 
 // --- workspaces ---------------------------------------------------------------------------------
@@ -239,7 +243,7 @@ function runAgent({ host, command, cwd, environment, timeoutMs, streamPath, stde
     let spawnError = null
     const child = spawn(host.bin, command.args, {
       cwd,
-      env: { ...environment, ...command.env },
+      env: { ...environment, ...isolation.get(host), ...command.env },
       stdio: ["ignore", "pipe", "pipe"],
       detached: true,
     })
@@ -408,6 +412,50 @@ async function judgeTrial({ suite, entry, arm, trial, trialDir, context, votes, 
   return { verdicts, usage }
 }
 
+/**
+ * An arm's scout: another agent that answers one discovery question read-only in the trial's
+ * workspace before the arm runs; its final message reaches the arm through the handoff template.
+ */
+async function runScout({ suite, entry, scout, work, trialDir, skillsDir, environment }) {
+  const host = HOSTS[scout.host]
+  const prompt = renderText(readFileSync(join(suite.dir, scout.promptFile), "utf8"), entry, suite, skillsDir)
+  writeFileSync(join(trialDir, "scout-prompt.txt"), prompt)
+  const outcome = await runAgent({
+    host,
+    command: host.command({
+      prompt,
+      model: scout.model,
+      effort: scout.effort,
+      cwd: work,
+      sandbox: "read-only",
+      maxTurns: entry.maxTurns ?? suite.maxTurns,
+    }),
+    cwd: work,
+    environment,
+    timeoutMs: (entry.timeoutSeconds ?? suite.timeoutSeconds) * 1000,
+    streamPath: join(trialDir, "scout-stream.jsonl"),
+    stderrPath: join(trialDir, "scout-stderr.txt"),
+  })
+  writeFileSync(join(trialDir, "scout-final.txt"), outcome.final ?? "")
+  let error = null
+  if (outcome.spawnError || outcome.timedOut) {
+    error = outcome.spawnError ?? "timeout"
+  } else if (outcome.error || (outcome.code !== 0 && !outcome.final)) {
+    error = outcome.error ?? `exit ${outcome.code}`
+  }
+
+  return {
+    host: scout.host,
+    model: scout.model,
+    effort: scout.effort,
+    error,
+    final: outcome.final ?? "",
+    durationMs: outcome.durationMs,
+    observedModels: outcome.models,
+    usage: outcome.usage,
+  }
+}
+
 async function runTrial({ suite, entry, armName, arm, rep, runDir, skillsDir, options, environment }) {
   const id = `${entry.id}__${armName}__r${rep}`
   const trialDir = join(runDir, "trials", id)
@@ -440,7 +488,18 @@ async function runTrial({ suite, entry, armName, arm, rep, runDir, skillsDir, op
     return finish({ ...base, status: "setup-error", error: setupError, graders: [], score: null, passed: false })
   }
 
-  const prompt = renderPrompt(entry, suite, skillsDir)
+  let prompt = renderPrompt(entry, suite, skillsDir)
+  let scout = null
+  if (arm.scout) {
+    scout = await runScout({ suite, entry, scout: arm.scout, work, trialDir, skillsDir, environment })
+    if (scout.error) {
+      return finish({ ...base, status: "error", error: `scout: ${scout.error}`, scout, graders: [], score: null, passed: false })
+    }
+
+    const handoff = renderText(readFileSync(join(suite.dir, arm.scout.handoffFile), "utf8"), entry, suite, skillsDir)
+    prompt = `${prompt}\n\n${handoff.replace("{{scout}}", () => scout.final.trim() || "none")}`
+  }
+
   writeFileSync(join(trialDir, "prompt.txt"), prompt)
   const host = HOSTS[arm.host]
   const outcome = await runAgent({
@@ -522,6 +581,7 @@ async function runTrial({ suite, entry, armName, arm, rep, runDir, skillsDir, op
     sessionId: outcome.sessionId,
     observedModels: outcome.models,
     usage: outcome.usage,
+    ...(scout ? { scout } : {}),
     judgeUsage,
     graders: graded,
     ...scored,
@@ -542,11 +602,57 @@ async function pool(items, concurrency, worker) {
 }
 
 /** A scratch directory and the environment every agent and judge run starts from. */
-function runEnvironment() {
+// Per-host environment overrides for this process's runs (see each host's `isolate`).
+const isolation = new Map()
+
+function runEnvironment(hideTools = []) {
   const scratch = mkdtempSync(join(tmpdir(), "q-eval-run-"))
   const emptyConfig = join(scratch, "gitconfig")
   writeFileSync(emptyConfig, "")
-  return { scratch, environment: { ...baseEnvironment(), ...gitEnvironment(emptyConfig) } }
+  for (const host of Object.values(HOSTS)) {
+    if (host.isolate) {
+      isolation.set(host, host.isolate(scratch))
+    }
+  }
+
+  const environment = { ...baseEnvironment(), ...gitEnvironment(emptyConfig) }
+  environment.PATH = hidePathTools(environment.PATH ?? "", hideTools, join(scratch, "path"))
+  return { scratch, environment }
+}
+
+/**
+ * PATH with `tools` unreachable: each directory holding one is replaced by a mirror of symlinks to
+ * its other entries, so the host CLIs beside a hidden tool still resolve.
+ */
+export function hidePathTools(path, tools, into) {
+  if (tools.length === 0) {
+    return path
+  }
+
+  const hidden = new Set(tools)
+  return path
+    .split(":")
+    .map((directory, index) => {
+      let names
+      try {
+        names = readdirSync(directory)
+      } catch {
+        return directory
+      }
+
+      if (!names.some((name) => hidden.has(name))) {
+        return directory
+      }
+
+      const mirror = join(into, String(index))
+      mkdirSync(mirror, { recursive: true })
+      for (const name of names.filter((name) => !hidden.has(name))) {
+        symlinkSync(join(directory, name), join(mirror, name))
+      }
+
+      return mirror
+    })
+    .join(":")
 }
 
 function hostVersion(bin) {
@@ -597,6 +703,18 @@ async function runCommand(positional, flags) {
   const armNames = flags.arms ? String(flags.arms).split(",") : suite.defaultArms ?? Object.keys(suite.arms ?? {})
   const arms = Object.fromEntries(armNames.map((name) => [name, suite.arms?.[name] ?? fail(`unknown arm ${name}`)]))
   for (const [name, arm] of Object.entries(arms)) {
+    if (arm.scout) {
+      for (const key of ["promptFile", "handoffFile"]) {
+        if (!arm.scout[key] || !existsSync(join(suite.dir, arm.scout[key]))) {
+          fail(`arm ${name}: its scout needs an existing ${key}`)
+        }
+      }
+
+      if (!HOSTS[arm.scout.host]) {
+        fail(`arm ${name}: unknown scout host ${arm.scout.host}`)
+      }
+    }
+
     const judge = suite.judges?.[arm.host]
     if (judge && HOSTS[judge.host].family === HOSTS[arm.host].family) {
       fail(`arm ${name}: its judge must come from another model family than ${arm.host}`)
@@ -632,7 +750,7 @@ async function runCommand(positional, flags) {
     fail(`${trials.length} trials spend real usage; rerun with --yes to confirm`)
   }
 
-  const { scratch, environment } = runEnvironment()
+  const { scratch, environment } = runEnvironment(suite.hideTools)
   let skillsDir = resolve(String(flags.skills ?? join(ROOT, "skills")))
   let skillsRev = run("git", ["-C", ROOT, "rev-parse", "HEAD"]).stdout.trim()
   let skillsDirty = run("git", ["-C", ROOT, "status", "--porcelain", "--", "skills"]).stdout.trim() !== ""
@@ -930,7 +1048,7 @@ async function regradeCommand(positional, flags) {
     return
   }
 
-  const { scratch, environment } = runEnvironment()
+  const { scratch, environment } = runEnvironment(suite.hideTools)
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)
   const flips = []
   let compared = 0

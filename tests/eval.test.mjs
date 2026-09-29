@@ -1,12 +1,13 @@
 import assert from "node:assert/strict"
 import { spawnSync } from "node:child_process"
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { describe, test } from "node:test"
 import { fileURLToPath } from "node:url"
 import { extractJson, gradeOne, judgePrompt, parseJudge, score } from "../scripts/eval/grade.mjs"
 import { baseEnvironment, HOSTS, skillsRead } from "../scripts/eval/hosts.mjs"
+import { hidePathTools } from "../scripts/eval.mjs"
 import { caseMean, decide, pairedDelta, random, split } from "../scripts/eval/stats.mjs"
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..")
@@ -238,6 +239,42 @@ describe("hosts", () => {
     const environment = baseEnvironment({ HOME: "/h", PATH: "/p", CLAUDE_EFFORT: "max", CLAUDECODE: "1", OTEL_X: "y" })
     assert.deepEqual(environment, { HOME: "/h", PATH: "/p" })
   })
+
+  test("hides named tools from PATH while their neighbours still resolve", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "q-eval-path-"))
+    try {
+      const bin = join(scratch, "bin")
+      const other = join(scratch, "other")
+      mkdirSync(bin)
+      mkdirSync(other)
+      writeFileSync(join(bin, "qs"), "")
+      writeFileSync(join(bin, "claude"), "")
+      writeFileSync(join(other, "git"), "")
+      const path = hidePathTools(`${bin}:${other}`, ["qs"], join(scratch, "mirror"))
+      const [first, second] = path.split(":")
+      assert.equal(second, other)
+      assert.notEqual(first, bin)
+      assert.deepEqual(readdirSync(first), ["claude"])
+      assert.equal(hidePathTools(`${bin}:${other}`, [], join(scratch, "x")), `${bin}:${other}`)
+    } finally {
+      rmSync(scratch, { recursive: true, force: true })
+    }
+  })
+
+  test("gives Codex a home of its own that holds only the login", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "q-eval-iso-"))
+    try {
+      const userHome = join(scratch, "user")
+      mkdirSync(join(userHome, ".codex"), { recursive: true })
+      writeFileSync(join(userHome, ".codex", "auth.json"), "{}")
+      const overrides = HOSTS.codex.isolate(join(scratch, "run"), { HOME: userHome })
+      assert.equal(overrides.HOME, join(scratch, "run", "codex-home"))
+      assert.equal(overrides.CODEX_HOME, join(overrides.HOME, ".codex"))
+      assert.equal(readlinkSync(join(overrides.CODEX_HOME, "auth.json")), join(userHome, ".codex", "auth.json"))
+    } finally {
+      rmSync(scratch, { recursive: true, force: true })
+    }
+  })
 })
 
 describe("eval.mjs", () => {
@@ -269,6 +306,31 @@ describe("eval.mjs", () => {
       })
       assert.equal(result.status, 0, result.stderr)
       assert.match(result.stdout, /2 cases x 2 arms \(a, b\) x 2 reps = 8 trials, each judged/)
+    } finally {
+      rmSync(suiteDir, { recursive: true, force: true })
+    }
+  })
+
+  test("rejects a scout arm whose prompt files are missing", () => {
+    const suiteDir = mkdtempSync(join(tmpdir(), "q-eval-suite-"))
+    try {
+      const scout = { host: "codex", model: "n", effort: "low", promptFile: "scout.md", handoffFile: "handoff.md" }
+      writeFileSync(
+        join(suiteDir, "suite.json"),
+        JSON.stringify({
+          arms: { a: { host: "claude", model: "m", effort: "low", scout } },
+          judges: { claude: { host: "codex", model: "n", effort: "low" } },
+        }),
+      )
+      writeFileSync(join(suiteDir, "cases.json"), JSON.stringify([{ id: "one", prompt: "hi", graders: [{ type: "final", name: "g", pattern: "x" }] }]))
+      writeFileSync(join(suiteDir, "scout.md"), "find defects")
+      const eval_ = () =>
+        spawnSync("node", [join(ROOT, "scripts", "eval.mjs"), "run", suiteDir, "--dry-run"], { encoding: "utf8" })
+      const missing = eval_()
+      assert.notEqual(missing.status, 0)
+      assert.match(missing.stderr, /scout needs an existing handoffFile/)
+      writeFileSync(join(suiteDir, "handoff.md"), "Candidates:\n{{scout}}")
+      assert.equal(eval_().status, 0)
     } finally {
       rmSync(suiteDir, { recursive: true, force: true })
     }

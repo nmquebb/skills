@@ -56,9 +56,13 @@ normalized events, the final message, the workspace's Git state, and every judge
      `--setting-sources project,local --strict-mcp-config` keeps the user's settings, hooks,
      skills, and MCP servers out while the login still works. A run answered by another model than
      the arm's fails as `model-mismatch`.
-   - Codex: `-c model_reasoning_effort=...` with `--ephemeral --ignore-user-config`. Codex still
-     lists skills installed in the user's home (`~/.agents/skills`, `~/.codex/skills`), so a global
-     skill can load in Codex arms, and its stream names no model, so the route stays unverified.
+   - Codex: `-c model_reasoning_effort=...` with `--ephemeral --ignore-user-config`, and `HOME`
+     and `CODEX_HOME` pointed at a throwaway home that links only the login, so the user's skills
+     (`~/.agents/skills`, `~/.codex/skills`), `AGENTS.md`, and config stay out; Codex's built-in
+     skills remain. Its stream names no model, so the route stays unverified.
+   - An arm with a `scout` first runs the scout's prompt read-only in the same workspace, then
+     appends the handoff template, with `{{scout}}` replaced by the scout's final message, to the
+     arm's prompt. A failed scout fails the trial as an infrastructure error.
 3. Graders read the final message, the normalized events, and the finished workspace. A trial's
    judge claims go in one batch to the suite's judge for the arm's host, which must be another
    model family; a judge answer that cannot be parsed is asked once more, then left ungraded.
@@ -78,7 +82,7 @@ that changed; check it before trusting judge claims, and tighten a claim that fl
 
 | Key | Meaning |
 | --- | --- |
-| `arms` | Named arms: `{ host, model, effort }` |
+| `arms` | Named arms: `{ host, model, effort }`, optionally with `scout: { host, model, effort, promptFile, handoffFile }` (files relative to the suite) |
 | `defaultArms` | Arms a run uses without `--arms` |
 | `judges` | Judge per host under test: `{ host, model, effort }` from another family |
 | `reps`, `timeoutSeconds`, `maxTurns` | Defaults per trial (`maxTurns` applies to Claude Code) |
@@ -87,6 +91,7 @@ that changed; check it before trusting judge claims, and tighten a claim that fl
 | `config` | File copied to `.agents/q/config.yaml` |
 | `setup` | Shell command that builds the fixture, with `CASE_DIR`, `SUITE_DIR`, and `SKILLS_DIR` set |
 | `sandbox` | Codex sandbox for the agent (default `workspace-write`) |
+| `hideTools` | Commands no trial may reach: each PATH directory holding one is replaced by a mirror without it |
 | `stop` | End runs early: `onSkill` (true or a skill-name pattern) and `afterTools` |
 | `graders` | Graders added to every case |
 | `judgeVotes` | Judge calls per trial, majority wins (default 1) |
@@ -126,3 +131,5 @@ judges; nothing else changes.
 - A run stopped early records no usage.
 - Judges see the final message, not the workspace, unless the case sets `judgeContext`.
 - Multi-turn cases are not supported yet; a case is one first message.
+- Codex runs before 2026-09-29 saw the user's own skills; compare Codex arms only with runs made
+  after isolation.

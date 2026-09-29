@@ -8,10 +8,14 @@
 //   line(state, record)      folds one parsed stdout JSON line into the state; returns the
 //                            normalized events it produced
 //   finish(state)            { final, sessionId, models, usage, turns, error }
+//   isolate(scratch)         optional: environment overrides that keep the user's own setup out
 //
 // Normalized events are { kind, name?, text?, path? } with kind one of message, skill, command,
 // read, write, search, agent, or tool. A skill counts as loaded when the host's skill tool runs or
 // the agent reads a skill's SKILL.md.
+
+import { existsSync, mkdirSync, symlinkSync } from "node:fs"
+import { join } from "node:path"
 
 const SKILL_FILE = /(?:^|[\s'"=/])(?:\.agents|\.claude|\.codex)\/skills\/([a-z0-9][a-z0-9-]*)\/SKILL\.md/g
 
@@ -196,6 +200,22 @@ const codex = {
       ],
       env: {},
     }
+  },
+
+  /**
+   * A throwaway home holding only a link to the login, so the user's skills (~/.agents/skills,
+   * ~/.codex/skills), AGENTS.md, and config stay out of trials; skills under test are project skills.
+   */
+  isolate(scratch, source = process.env) {
+    const home = join(scratch, "codex-home")
+    const codexHome = join(home, ".codex")
+    mkdirSync(codexHome, { recursive: true })
+    const auth = join(source.CODEX_HOME ?? join(source.HOME ?? "", ".codex"), "auth.json")
+    if (existsSync(auth)) {
+      symlinkSync(auth, join(codexHome, "auth.json"))
+    }
+
+    return { HOME: home, CODEX_HOME: codexHome }
   },
 
   start() {
