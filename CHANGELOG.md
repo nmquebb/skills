@@ -13,6 +13,8 @@ Consumer-visible changes, newest first. See [distribution](docs/distribution.md)
   v1 artifacts stay in consumer repositories as ordinary documents.
 - Simplify optional project configuration to version 2 conventions, commands, threat-model path,
   and agent routes; see the migration instructions in distribution docs.
+- Code Quality review checks reachable behavior, truthfulness of changed statements, and evidence
+  for changed behavior.
 
 ## v1
 

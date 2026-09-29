@@ -49,6 +49,13 @@ A finding blocks only with concrete evidence of:
 
 - a violation of applicable guidance (project or baseline) or package ownership;
 - a failure of approved acceptance or a public contract;
+- a wrong outcome on a reachable path of behavior the task adds or changes, even when the path is
+  uncommon or the acceptance does not name it;
+- a statement the task adds or changes (documentation, comment, message, or policy text) that the
+  code does not make true;
+- behavior the task adds or changes that no test or recorded evidence would catch if it were
+  reverted; a missing harness does not waive this, though the correction may be the smallest proof
+  the repository can host;
 - an undeclined critical security or data-loss boundary; or
 - task-introduced structural debt with a smaller ownership-preserving correction.
 
