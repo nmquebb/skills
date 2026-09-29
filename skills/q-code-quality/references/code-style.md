@@ -31,15 +31,12 @@ flows across affected apps and features while those owners are in context. Forma
 not settle these. Fix an applicable convention violation before dependent work, or keep an explicit
 user waiver.
 
-Apply the [Review test](#review-test) to the diff, then record in the existing task record the
-outcome, current tree or commit, command results and environment, unresolved decisions or waivers,
-and next slice. Keep its current-state section concise. Ordinary work needs no lifecycle artifacts
-for this.
+Apply the [Review test](#review-test) to the diff and report the outcome, relevant checks, and
+unresolved decisions. Use an existing task record only when the project already has one.
 
 ## Simplicity
 
-- Build only what the current feature needs: ship the smallest stage that delivers the current
-  need, and record later stages on the roadmap or as follow-up.
+- Build only what the current feature needs; note later ideas as follow-up only when useful.
 - A diff too wide for a maintainer to hold in one review is a defect; slice the work instead.
 - Prefer direct code over speculative abstractions, generic frameworks, compatibility layers, or
   configuration with no present consumer.

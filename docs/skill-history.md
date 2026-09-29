@@ -1,8 +1,8 @@
 # Skill History
 
 Append-only provenance for evidence-driven changes to the suite. Search it before changing a
-settled choice; read only the last ~40 lines before appending. Format:
-`q-improve-skills` → references/evaluation-format.md, "Provenance entry".
+settled choice; read only the last ~40 lines before appending. Each entry records source, problem,
+decision, owners, validation, and next evidence.
 
 ### 2026-09-28 — Extraction into a reusable suite
 
@@ -146,3 +146,16 @@ settled choice; read only the last ~40 lines before appending. Format:
 - Next evidence: a structural change measured as a pair of arms instead of more wording, such as
   a documentation-statement check in final review when a change touches documentation or doc
   comments; five repeats (noise about 8 points) before retesting severity calibration
+# 2026-09-29 — v2 workflow simplification
+
+- Source: user-directed major refactor toward a fast spec-through-implementation path.
+- Problem: fixed artifact locations, ledgers, approval commits, phase routing, and repeated gates
+  obscured the requested work.
+- Decision: independent Spec, Plan, and Implement entry points with flexible inputs and outputs;
+  remove six process skills and keep only optional shared conventions.
+- Owners: core skills, q-workflow configuration, distribution, eval fixtures, suite validation.
+- Validation: suite validator, 58 script tests, compatibility check against the not-yet-created
+  v2 channel, eval dry runs, whitespace check, and installed host-load check on Claude Code and
+  Codex (pi unavailable).
+- Next evidence: use the new skills on real requests and inspect whether the output is sufficient
+  without adding process back.

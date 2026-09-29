@@ -36,10 +36,6 @@ const STANDALONE_DEPENDENCIES = new Map([
 
 // q-prefixed identifiers that are not skills: markers, paths, and the marketplace name.
 const NON_SKILL_IDENTIFIERS = new Set([
-  "q-lifecycle",
-  "q-triage-proposal",
-  "q-reconcile-complete",
-  "q-archive-complete",
   "q-evidence",
   "q-skills",
 ])
@@ -364,7 +360,6 @@ function renderDefault(value) {
 function validateConfigDefaults() {
   const schemaPath = join(SKILLS_ROOT, "q-workflow", "references", "config.schema.json")
   const configPath = join(SKILLS_ROOT, "q-workflow", "references", "config.md")
-  const labelsPath = join(SKILLS_ROOT, "q-workflow", "references", "backends", "tracker-github.md")
   const schema = readJson(schemaPath)
   if (!schema) {
     return
@@ -407,13 +402,6 @@ function validateConfigDefaults() {
     }
   }
 
-  const labels = nodeAt("tracker.labels")?.properties ?? {}
-  for (const line of readFileSync(labelsPath, "utf8").split("\n")) {
-    const row = /^\| `(\w+)` \| `([^`]+)` \|/.exec(line)
-    if (row && labels[row[1]] && labels[row[1]].default !== row[2]) {
-      fail(labelsPath, `label for ${row[1]} disagrees with the schema default "${labels[row[1]].default}"`)
-    }
-  }
 }
 
 function validateManifests(skillNames) {

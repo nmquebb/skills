@@ -208,11 +208,11 @@ describe("hosts", () => {
       { type: "thread.started", thread_id: "t1" },
       {
         type: "item.completed",
-        item: { type: "command_execution", command: "cat /home/u/.agents/skills/q-roadmap/SKILL.md", exit_code: 1 },
+        item: { type: "command_execution", command: "cat /home/u/.agents/skills/q-code-quality/SKILL.md", exit_code: 1 },
       },
       {
         type: "item.completed",
-        item: { type: "command_execution", command: "/bin/zsh -lc 'cat .agents/skills/q-roadmap/SKILL.md'", exit_code: 0 },
+        item: { type: "command_execution", command: "/bin/zsh -lc 'cat .agents/skills/q-code-quality/SKILL.md'", exit_code: 0 },
       },
       { type: "item.completed", item: { type: "file_change", changes: [{ path: "a.js" }] } },
       { type: "item.completed", item: { type: "agent_message", text: "answer" } },

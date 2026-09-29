@@ -1,7 +1,7 @@
 interface:
   display_name: "Q Spec"
-  short_description: "Define and approve a q delivery outcome"
-  default_prompt: "Use $q-spec to define and approve the outcome for this delivery."
+  short_description: "Write a focused spec at the location the user chooses"
+  default_prompt: "Use $q-spec to clarify this outcome and save the specification where I choose."
 
 policy:
   allow_implicit_invocation: false

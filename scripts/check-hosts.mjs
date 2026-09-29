@@ -6,8 +6,7 @@
 // model must see exactly the skills without `disable-model-invocation: true`.
 // Needs network for npx. Skips a host that is not installed; for pi, set PI_PACKAGE_DIR to an
 // installed @earendil-works/pi-coding-agent package directory, or install it globally.
-// Usage: node scripts/check-hosts.mjs [--live]
-//   --live  also invoke q-workflow's read-only Check on each installed host CLI (spends model tokens)
+// Usage: node scripts/check-hosts.mjs
 
 import { spawnSync } from "node:child_process"
 import {
@@ -26,8 +25,6 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const SKILLS_CLI = "skills@1.7.0"
-const LIVE = process.argv.includes("--live")
-const INFERENCE_LINE = /q config: none; inferred tracker=local integration=local parent=main/
 const failures = []
 const skipped = []
 
@@ -157,13 +154,6 @@ if (has("claude")) {
   check("Claude Code", sameSet(pluginSkills, skillNames), `plugin loads [${pluginSkills}]`)
   rmSync(config, { recursive: true, force: true })
 
-  if (LIVE) {
-    const tools = "Read,Glob,Grep,Bash(git *),Bash(gh auth status),Bash(ls *),Bash(cat *)"
-    const live = run("claude", ["-p", "/q-workflow check", "--allowedTools", tools, "--max-turns", "25"], {
-      cwd: consumer,
-    })
-    check("Claude Code", INFERENCE_LINE.test(live.stdout), `live q-workflow check:\n${live.stdout}${live.stderr}`)
-  }
 } else {
   skipped.push("Claude Code (claude not on PATH)")
 }
@@ -176,12 +166,6 @@ if (has("codex")) {
     .sort()
   check("Codex", sameSet(listed, modelVisible), `model sees [${listed}], expected [${modelVisible}]`)
 
-  if (LIVE) {
-    const live = run("codex", ["exec", "--sandbox", "read-only", "--skip-git-repo-check", "$q-workflow check"], {
-      cwd: consumer,
-    })
-    check("Codex", INFERENCE_LINE.test(live.stdout + live.stderr), `live q-workflow check:\n${live.stdout}${live.stderr}`)
-  }
 } else {
   skipped.push("Codex (codex not on PATH)")
 }

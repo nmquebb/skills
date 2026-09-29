@@ -1,15 +1,10 @@
 {
   "name": "q-skills",
   "description": "The q skill suite by Nick Quebbeman.",
-  "owner": {
-    "name": "Nick Quebbeman",
-    "url": "https://github.com/nmquebb"
-  },
-  "plugins": [
-    {
-      "name": "q",
-      "source": "./",
-      "description": "Opt-in delivery lifecycle, issue triage, and engineering-quality skills for GitHub or local workflows."
-    }
-  ]
+  "owner": {"name": "Nick Quebbeman", "url": "https://github.com/nmquebb"},
+  "plugins": [{
+    "name": "q",
+    "source": "./",
+    "description": "Focused spec, plan, implementation, and optional engineering utilities."
+  }]
 }

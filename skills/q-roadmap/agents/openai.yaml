@@ -1,4 +1,0 @@
-interface:
-  display_name: "Q Roadmap"
-  short_description: "Inspect or update the ordered q roadmap"
-  default_prompt: "Use $q-roadmap to inspect or update this project's roadmap."

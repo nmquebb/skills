@@ -1,6 +1,6 @@
 ---
 name: q-code-quality
-description: "Required read-only verification before completing production code changes, or for an explicit code-quality review: fit with the repository's style, naming, reuse, architecture, and tests. One verdict owner; launches no agents."
+description: "Review a concrete code change for correctness and fit with project conventions when the user requests code quality review or the change warrants a deeper pass. One verdict owner; launches no agents."
 license: MIT
 ---
 
@@ -87,15 +87,9 @@ clean-category padding; counts of tests, helpers, lines, or findings are never a
 
 ## Use one verdict owner
 
-- **Full lifecycle:** one independent final reviewer (the `finalReviewer` role `q-implement`
-  launches) confirms any supplied scout candidates and owns the verdict; a `sliceReviewer` applies
-  this skill to one slice for findings only, never a verdict. Record a scout's unique confirmed
-  findings and usage when one ran. On a host that cannot launch a fresh agent, the owner's pass is
-  recorded as self-review and does not satisfy the independent final review (see
-  [orchestration](../q-workflow/references/orchestration.md#routing-rules) when installed).
-- **Lightweight issue and ordinary production work:** the implementation owner runs one direct pass
-  after evidence and before completion, corrects blocking findings, reruns affected proof, and
-  re-reviews the correction and its impact.
+- **During implementation:** the implementation owner runs one direct pass when requested or
+  warranted by risk, corrects blocking findings, and reruns only affected proof. An independent
+  reviewer is optional unless the user or project requires one.
 - **Explicit standalone review:** no scout unless the user separately requests independent
   reviewers, and no edits unless fixes are separately authorized. A host that cannot launch fresh
   agents says so and reviews in the current session.

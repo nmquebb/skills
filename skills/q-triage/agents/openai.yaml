@@ -1,7 +1,0 @@
-interface:
-  display_name: "Q Triage"
-  short_description: "Triage an issue into an approved, ready contract"
-  default_prompt: "Use $q-triage to investigate this issue, record its approved plan, and mark it ready for implementation."
-
-policy:
-  allow_implicit_invocation: false

@@ -1,10 +1,8 @@
 # Evals
 
 Repeatable measurements of how agents behave with the q skills, run headlessly on every host the
-suite supports. Use them to check a skill change before it ships, to tune skill text by
-hillclimbing, and to choose models and effort for roles. `q-improve-skills` owns when an eval
-counts as evidence and how to hillclimb ([evals](../skills/q-improve-skills/references/evals.md));
-this document owns the harness.
+suite supports. Use them to check a skill change before it ships, compare revisions, and choose models and
+effort for roles. This document describes the harness and its limits.
 
 Every run spends real model usage, so nothing here runs in CI; `tests/eval.test.mjs` covers the
 harness itself.
@@ -13,7 +11,7 @@ harness itself.
 
 | Suite | Question | Graders |
 | --- | --- | --- |
-| [`review-effort`](review-effort/) | Does reviewer effort or model buy defect detection in the final review? Ten small deliveries, eight with planted defects and two clean controls, reviewed under the `q-implement` final-review contract | Verdict JSON and status, a read-only check, one judge claim per planted defect |
+| [`review-effort`](review-effort/) | Does reviewer effort or model buy defect detection in the final review? Ten small deliveries, eight with planted defects and two clean controls, reviewed with `q-code-quality` guidance | Verdict JSON and status, a read-only check, one judge claim per planted defect |
 | [`skill-triggers`](skill-triggers/) | Do the model-invocable skills load on realistic first messages and stay out of near misses? | Skill-load events |
 
 The cases are synthetic stand-ins for real work, anchored to the defect and request classes the

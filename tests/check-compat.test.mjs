@@ -24,7 +24,7 @@ function gitIn(directory) {
   return (...args) => spawnSync("git", args, { cwd: directory, encoding: "utf8", env: GIT_ENV })
 }
 
-/** Copies the suite into a throwaway repository whose `v1` branch is the unchanged suite. */
+/** Copies the suite into a throwaway repository whose `v2` branch is the unchanged suite. */
 function createChannelRepository() {
   const directory = mkdtempSync(join(tmpdir(), "q-compat-"))
   cpSync(join(ROOT, "skills"), join(directory, "skills"), { recursive: true })
@@ -33,11 +33,11 @@ function createChannelRepository() {
   git("init", "-q", "-b", "main")
   git("add", ".")
   git("commit", "-qm", "base")
-  git("branch", "v1")
+  git("branch", "v2")
   return directory
 }
 
-function checkCompat(directory, ref = "v1") {
+function checkCompat(directory, ref = "v2") {
   return spawnSync("node", [join(directory, "scripts", "check-compat.mjs"), ref], {
     cwd: directory,
     encoding: "utf8",
@@ -74,13 +74,10 @@ describe("check-compat", () => {
     try {
       edit(directory, SCHEMA, (text) => {
         const schema = JSON.parse(text)
-        schema.properties.git.properties.newOptionalKey = { type: "string" }
-        schema.properties.roadmap.properties.backend.enum.push("linear")
+        schema.properties.commands.properties.newOptionalKey = { type: "string" }
+        schema.properties.agents.properties.launcher.enum.push("custom")
         return JSON.stringify(schema, null, 2)
       })
-      edit(directory, "skills/q-spec/references/artifact-format.md", (text) =>
-        text.replace("## Problem\n", "## Problem\n\n## Context\n"),
-      )
       assert.equal(checkCompat(directory).status, 0)
     } finally {
       rmSync(directory, { recursive: true, force: true })
@@ -114,16 +111,16 @@ describe("check-compat", () => {
     try {
       edit(directory, SCHEMA, (text) => {
         const schema = JSON.parse(text)
-        delete schema.properties.git.properties.worktreeRoot
-        schema.properties.tracker.properties.backend.enum = ["github", "local"]
-        schema.properties.version.const = 2
+        delete schema.properties.conventions.properties.baseline
+        schema.properties.agents.properties.launcher.enum = ["native"]
+        schema.properties.version.const = 3
         return JSON.stringify(schema, null, 2)
       })
       const result = checkCompat(directory)
       assert.equal(result.status, 1)
-      assert.match(result.stderr, /git\.worktreeRoot was removed/)
-      assert.match(result.stderr, /tracker\.backend no longer accepts "custom"/)
-      assert.match(result.stderr, /version changed from 1 to 2/)
+      assert.match(result.stderr, /conventions\.baseline was removed/)
+      assert.match(result.stderr, /agents\.launcher no longer accepts "paseo"/)
+      assert.match(result.stderr, /version changed from 2 to 3/)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }
@@ -134,10 +131,10 @@ describe("check-compat", () => {
     try {
       edit(directory, SCHEMA, (text) => {
         const schema = JSON.parse(text)
-        schema.properties.git.properties.workspace.default = "branch"
+        schema.properties.paths.properties.threatModel.default = "security/threats.md"
         return JSON.stringify(schema, null, 2)
       })
-      assertBreaks(directory, /git\.workspace default changed from "worktree"/)
+      assertBreaks(directory, /paths\.threatModel default changed from "docs\/threat-model.md"/)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }
@@ -147,14 +144,14 @@ describe("check-compat", () => {
     const directory = createChannelRepository()
     const git = gitIn(directory)
     try {
-      edit(directory, "skills/q-workflow/references/lifecycle.md", (text) =>
-        text.replace("Ordinary work still requires a separate request to push or merge.", "Ordinary work still requires an explicit request to push or merge."),
+      edit(directory, "skills/q-workflow/references/config.md", (text) =>
+        text.replace("User direction takes priority", "User instructions take priority"),
       )
-      assertBreaks(directory, /section "Authority" changed; needs review[\s\S]*Compat-Reviewed/)
+      assertBreaks(directory, /section "Precedence" changed; needs review[\s\S]*Compat-Reviewed/)
 
       const flagged = spawnSync(
         "node",
-        [join(directory, "scripts", "check-compat.mjs"), "v1", "--reviewed", "wording only"],
+        [join(directory, "scripts", "check-compat.mjs"), "v2", "--reviewed", "wording only"],
         { cwd: directory, encoding: "utf8", env: GIT_ENV },
       )
       assert.equal(flagged.status, 0, flagged.stderr)
@@ -172,25 +169,25 @@ describe("check-compat", () => {
   test("never lets an older review trailer cover a later change", () => {
     const directory = createChannelRepository()
     const git = gitIn(directory)
-    const lifecycle = "skills/q-workflow/references/lifecycle.md"
+    const lifecycle = "skills/q-workflow/references/config.md"
     try {
       edit(directory, lifecycle, (text) =>
-        text.replace("Ordinary work still requires a separate request to push or merge.", "Ordinary work still requires an explicit request to push or merge."),
+        text.replace("User direction takes priority", "User instructions take priority"),
       )
       git("commit", "-qam", "docs: reword authority\n\nCompat-Reviewed: wording only")
       assert.equal(checkCompat(directory).status, 0)
 
       edit(directory, lifecycle, (text) =>
-        text.replace("Ordinary work still requires an explicit request to push or merge.", "Ordinary work may push or merge without a request."),
+        text.replace("User instructions take priority", "User instructions and local conventions take priority"),
       )
       git("commit", "-qam", "docs: loosen authority")
-      assertBreaks(directory, /section "Authority" changed; needs review/)
+      assertBreaks(directory, /section "Precedence" changed; needs review/)
 
       git("commit", "-q", "--allow-empty", "-m", "docs: review authority change\n\nCompat-Reviewed: checked the later change")
       assert.equal(checkCompat(directory).status, 0)
 
-      edit(directory, lifecycle, (text) => text.replace("Ordinary work may push or merge without a request.", "Ordinary work may do anything."))
-      assertBreaks(directory, /section "Authority" changed; needs review/)
+      edit(directory, lifecycle, (text) => text.replace("User instructions and local conventions take priority", "Local conventions take priority"))
+      assertBreaks(directory, /section "Precedence" changed; needs review/)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }
@@ -199,8 +196,8 @@ describe("check-compat", () => {
   test("ignores rewrapping a guarded section", () => {
     const directory = createChannelRepository()
     try {
-      edit(directory, "skills/q-workflow/references/lifecycle.md", (text) =>
-        text.replace("Ordinary work still requires a separate request to push or merge.", "Ordinary work still requires a separate request\nto push or merge."),
+      edit(directory, "skills/q-workflow/references/config.md", (text) =>
+        text.replace("User direction takes priority, then the skill addendum", "User direction takes priority, then the skill\naddendum"),
       )
       assert.equal(checkCompat(directory).status, 0)
     } finally {
@@ -208,32 +205,4 @@ describe("check-compat", () => {
     }
   })
 
-  test("rejects a removed marker", () => {
-    const directory = createChannelRepository()
-    try {
-      const pattern = /q-triage-proposal:v1/g
-      for (const path of [
-        "skills/q-workflow/references/backends/tracker-github.md",
-        "skills/q-workflow/references/artifacts.md",
-      ]) {
-        edit(directory, path, (text) => text.replace(pattern, "q-triage-proposal:v2"))
-      }
-
-      assertBreaks(directory, /marker q-triage-proposal:v1 is no longer documented/)
-    } finally {
-      rmSync(directory, { recursive: true, force: true })
-    }
-  })
-
-  test("rejects a removed artifact-format field", () => {
-    const directory = createChannelRepository()
-    try {
-      edit(directory, "skills/q-plan/references/plan-format.md", (text) =>
-        text.replace(/^- Delivery policy:.*\n/m, ""),
-      )
-      assertBreaks(directory, /plan-format\.md: format field "- Delivery policy:" was removed/)
-    } finally {
-      rmSync(directory, { recursive: true, force: true })
-    }
-  })
 })

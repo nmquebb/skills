@@ -1,7 +1,0 @@
-interface:
-  display_name: "Q Reconcile"
-  short_description: "Prepare, integrate, or discard q lifecycle work"
-  default_prompt: "Use $q-reconcile to prepare lifecycle work, integrate an exact candidate head, perform a user-authorized discard after a failed risk gate, or repair a lightweight issue conflict."
-
-policy:
-  allow_implicit_invocation: false

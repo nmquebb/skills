@@ -6,7 +6,7 @@
 // authority, precedence, detection, and review-independence sections) pass only with a
 // `Compat-Reviewed: <reason>` trailer on a commit since the base, or `--reviewed "<reason>"` for a
 // local run before committing. See docs/distribution.md#compatibility-contract.
-// Usage: node scripts/check-compat.mjs <base-ref> [--reviewed "<reason>"]   (for example origin/v1)
+// Usage: node scripts/check-compat.mjs <base-ref> [--reviewed "<reason>"]   (for example origin/v2)
 
 import { spawnSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
@@ -16,14 +16,9 @@ import { fileURLToPath } from "node:url"
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const SCHEMA_PATH = "skills/q-workflow/references/config.schema.json"
 const MARKER = /\bq-[a-z]+(?:-[a-z]+)*:v\d+\b/g
-const FORMAT_FILE = /(?:references\/(?:artifact-format|plan-format|archive-format|reconciliation-record|threat-model-format)\.md|backends\/tracker-local\.md|q-roadmap\/references\/local\.md)$/
+const FORMAT_FILE = /references\/threat-model-format\.md$/
 const GUARDED_SECTIONS = [
-  ["skills/q-workflow/references/lifecycle.md", "User authority"],
-  ["skills/q-workflow/references/lifecycle.md", "Delivery policy"],
-  ["skills/q-workflow/references/lifecycle.md", "Authority"],
   ["skills/q-workflow/references/config.md", "Precedence"],
-  ["skills/q-workflow/references/config.md", "Defaults and detection"],
-  ["skills/q-workflow/references/config.md", "Valid combinations"],
   ["skills/q-workflow/references/orchestration.md", "Routing rules"],
 ]
 const TRAILER = /^Compat-Reviewed:[ \t]*\S.*$/m

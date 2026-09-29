@@ -115,29 +115,9 @@ describe("validate", () => {
     assertRejects(
       (directory) =>
         edit(directory, "skills/q-workflow/references/config.md", (text) =>
-          text.replace("| `integration.mergeMethod` | `merge` |", "| `integration.mergeMethod` | `squash` |"),
+          text.replace("| `conventions.baseline` | `true` |", "| `conventions.baseline` | `false` |"),
         ),
-      /default for integration\.mergeMethod disagrees with the schema/,
-    )
-  })
-
-  test("rejects a documented conditional default that disagrees with the schema", () => {
-    assertRejects(
-      (directory) =>
-        edit(directory, "skills/q-workflow/references/config.md", (text) =>
-          text.replace("| `integration.push` | `true` for `github`, `false` for `local` |", "| `integration.push` | `true` |"),
-        ),
-      /default for integration\.push disagrees with the schema/,
-    )
-  })
-
-  test("rejects a label table that disagrees with the schema", () => {
-    assertRejects(
-      (directory) =>
-        edit(directory, "skills/q-workflow/references/backends/tracker-github.md", (text) =>
-          text.replace("| `ready` | `ready for implementation` |", "| `ready` | `ready` |"),
-        ),
-      /label for ready disagrees with the schema default "ready for implementation"/,
+      /default for conventions\.baseline disagrees with the schema/,
     )
   })
 

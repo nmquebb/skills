@@ -1,106 +1,82 @@
+For questions about code, use the qs MCP tools (`code_search`, `code_symbols`, `code_deps`). `rg`
+is fine for a quick literal search.
+
 # q Skills — Agent Guide
 
-This repository is the q skill suite: Agent Skills for Claude Code, Codex, and pi, distributed
-through the `skills` CLI and a Claude Code plugin marketplace. [README](README.md) covers
-installation; [distribution](docs/distribution.md) owns channels, releases, and the compatibility
-contract.
+This repository is the q skill suite for Claude Code, Codex, and pi. The core is a lightweight,
+opt-in Spec → Plan → Implement path; each skill also works as a separate entry point. [README](README.md)
+covers installation and [distribution](docs/distribution.md) owns releases.
 
 ## Layout
 
 | Path | Owns |
 | --- | --- |
-| `skills/<name>/SKILL.md` | One skill; `name` equals the folder name and starts with `q-` |
-| `skills/<name>/references/` | Detail loaded on demand, linked from SKILL.md with when to read it |
+| `skills/<name>/SKILL.md` | One skill; `name` equals its `q-` folder name |
+| `skills/<name>/references/` | Detail loaded only when relevant |
 | `skills/<name>/scripts/` | Executables the skill runs |
 | `skills/<name>/agents/openai.yaml` | Codex interface metadata and invocation policy |
-| `skills/q-workflow/references/` | Shared lifecycle contract: config, lifecycle, orchestration, backends, questions, artifacts, metrics, documentation |
-| `.claude-plugin/` | Plugin and marketplace manifests, with no `version` so users track commits |
+| `skills/q-workflow/references/` | Optional project configuration and agent routing |
+| `.claude-plugin/` | Plugin and marketplace manifests, with no version |
 | `scripts/validate.mjs` | Suite validator |
-| `scripts/eval.mjs`, `scripts/eval/` | Eval harness: headless host adapters, grading, statistics |
-| `evals/` | Eval suites: cases, fixtures, and graders ([evals](evals/README.md)) |
+| `scripts/eval.mjs`, `scripts/eval/`, `evals/` | Optional host eval harness and suites |
 | `tests/` | Tests for suite scripts |
-| `docs/` | Maintainer documentation: distribution, skill history |
+| `docs/` | Distribution and skill history |
 
 ## Compatibility contract
 
-These are public API. Within a major channel, change them only additively:
+Within a major channel, change these public interfaces only additively: skill names and invocation
+policy; `.agents/q/config.yaml` keys, defaults, and meanings; artifact formats and any `q-*:vN`
+markers a skill writes; and authority. Readers accept all forms the channel has written. The
+checker, `scripts/check-compat.mjs`, enforces mechanical parts. A change to guarded wording that
+preserves authority needs a `Compat-Reviewed: <reason>` trailer on the latest relevant commit.
+A breaking change starts a new major channel per [distribution](docs/distribution.md#breaking-changes).
 
-- skill names and whether a skill is explicit-only;
-- `.agents/q/config.yaml` keys, defaults, and meanings, and addendum file names;
-- artifact formats written into consumer repositories and trackers: spec, plan, ledger, delivery
-  record, local issue and roadmap files, and every `q-*:vN` marker;
-- authority: a change never lets a skill mutate something it previously left alone unless new
-  configuration opts in.
-
-Readers accept every marker and artifact version the suite has written; writers write the newest.
-Wording, procedure refinements, new optional keys, new skills, and new references ship
-continuously. `scripts/check-compat.mjs` enforces the contract in CI; a change to a guarded section
-needs a `Compat-Reviewed: <reason>` trailer, on its latest commit or a later one, once you have
-confirmed it is compatible. When a change cannot be made compatible, stop and follow the major-release procedure
-in [distribution](docs/distribution.md#breaking-changes).
+The v2 core skills impose no default spec or plan location, ledger, tracker, branch, review gate,
+phase approval, or next-phase routing. Do not reintroduce one through a reference, template,
+example, or setup path. A user path or project convention may supply a location for a particular
+request. Implementation accepts a direct instruction or a plan; planning accepts freeform text or
+a file.
 
 ## Writing skills
 
 - **Frontmatter:** `name`, a double-quoted `description`, `license: MIT`, and for explicit-only
-  skills `disable-model-invocation: true`. The description is at most 1024 characters with no angle
-  brackets and says what the skill does and when to use it; keep it short, because Codex caps the
-  whole skill list. pi skips a skill whose frontmatter is not strict YAML.
-- **Invocation policy:** explicit-only skills are hidden from the model on every host:
-  `disable-model-invocation: true` (Claude Code, pi) and `policy.allow_implicit_invocation: false`
-  in `agents/openai.yaml` (Codex). Users invoke them as `/q-x` (Claude Code), `$q-x` (Codex), or
-  `/skill:q-x` (pi). Hand-offs between skills link the target's SKILL.md by relative path, which
-  works whatever its invocation setting.
-- **Size:** SKILL.md at most 500 lines; keep it to procedure and decisions, with one level of
-  references for reusable detail.
-- **Paths:** link files relative to the linking file (`references/x.md`, `../q-tdd/SKILL.md`). Name
-  scripts as `<skill-dir>/scripts/x.sh`, where `<skill-dir>` is the directory containing the
-  SKILL.md. Never use host variables such as `${CLAUDE_SKILL_DIR}` or install-location paths such
-  as `.agents/skills/...`.
-- **Hosts:** write host-neutral instructions ("the host's question tool", "a fresh read-only agent
-  per orchestration"). Host-specific tool names belong in
-  [the native launcher](skills/q-workflow/references/launchers/native.md) or a clearly labeled
-  host note. Every step that needs a capability some host lacks (subagents, a question tool, web
-  access) states the fallback.
-- **Scripts:** POSIX `sh`/`bash`, or Node 20+ ESM with no dependencies. No network access, no
-  installs, no Bun-only APIs. Scripts locate their own files from their own path and write only to
-  the working repository or a temporary directory, never into the skill folder. A
-  platform-specific script says so and exits with a clear message elsewhere.
-- **No nested skills:** never ship a file named `SKILL.md` below a skill folder; Codex registers
-  it as another skill.
-- **Project specifics never enter the suite.** Read them from `.agents/q/config.yaml`, project
-  addenda in `.agents/q/`, and project guidance, per
-  [config](skills/q-workflow/references/config.md).
-- **Standalone skills** (`q-code-quality`, `q-tdd`, `q-adversarial`, `q-threat-model`,
-  `q-computer-use`) work without the rest of the suite. They read config and their addendum
-  directly, and treat links into other skills as optional enhancements, except that `q-tdd` and
-  `q-code-quality` depend on each other.
-- **Style:** imperative, dense, decisive. Defaults first, then exceptions a reader could meet. No
-  generic advice the model already follows. Wrap Markdown near 100 columns.
+  skills `disable-model-invocation: true`. Keep descriptions short and discriminating. pi needs
+  strict YAML.
+- **Invocation policy:** explicit-only skills also set `policy.allow_implicit_invocation: false`
+  in `agents/openai.yaml`. Users invoke them as `/q-x` (Claude Code), `$q-x` (Codex), or
+  `/skill:q-x` (pi).
+- **Size:** keep `SKILL.md` at most 500 lines and as short as the task permits. Put reusable detail
+  in one level of references, linked with when to read it.
+- **Paths:** link relative to the linking file. Name scripts as `<skill-dir>/scripts/x.sh`, where
+  `<skill-dir>` contains the SKILL.md. Do not use host variables or installed skill paths.
+- **Hosts:** write host-neutral instructions. Host-specific tool names belong in the native
+  launcher or a labeled host note. State a fallback when a step needs a capability a host lacks.
+- **Scripts:** POSIX shell or Node 20+ ESM, no dependencies, network, or installs. Scripts locate
+  their own files and write only to a working repository or temporary directory.
+- **No nested skills:** no `SKILL.md` below a skill folder.
+- **Project specifics:** read them from `.agents/q/config.yaml`, addenda, and project guidance.
+  Do not put one project's rules in this suite.
+- **Standalone utilities:** `q-code-quality`, `q-tdd`, `q-adversarial`, `q-threat-model`, and
+  `q-computer-use` work without the core; `q-tdd` and `q-code-quality` link to each other.
+- **Style:** imperative, dense, decisive. Defaults first, exceptions second. Avoid generic advice
+  and process requirements without a concrete benefit. Wrap Markdown near 100 columns.
 
 ## Validate
 
 ```sh
-node scripts/validate.mjs                # structure, frontmatter, links, leaks, manifests (CI)
-node --test "tests/*.test.mjs"           # suite script tests (CI)
-node scripts/check-compat.mjs origin/v1  # public-API compatibility with the channel (CI)
+node scripts/validate.mjs
+node --test "tests/*.test.mjs"
+node scripts/check-compat.mjs origin/v2
 node scripts/check-hosts.mjs             # before releasing host-visible changes; needs network
-node scripts/eval.mjs run <suite>        # behavior on real hosts; spends model usage, never in CI
+node scripts/eval.mjs run <suite>        # optional; spends model usage, never in CI
 ```
 
-`eval.mjs` runs a suite under `evals/` (or any suite directory) against each host CLI in fresh
-workspaces; [evals](evals/README.md) documents the harness, and `q-improve-skills`
-[evals](skills/q-improve-skills/references/evals.md) the method.
-
-`check-hosts` installs this checkout with the `skills` CLI into a throwaway repository, resolves
-every relative link through the installed layout, and asks Claude Code (`claude plugin validate` and
-an install into a throwaway config), Codex (`codex debug prompt-input`), and pi (its own skill
-loader, via `PI_PACKAGE_DIR` or a global install) what they load; it skips hosts that are not
-installed. The git-hosted plugin cache can only be exercised after publishing: add
-`nmquebb/skills#v1` as a marketplace in a throwaway `CLAUDE_CONFIG_DIR`. `claude plugin validate` warns that the plugin has no version; that is deliberate (see
-[distribution](docs/distribution.md#channels)).
+`check-hosts` tests a throwaway installation across available hosts; the plugin's missing version
+warning is deliberate. `eval.mjs` runs cases against host CLIs in fresh workspaces; see
+[evals](evals/README.md).
 
 ## Record changes
 
 - `CHANGELOG.md`: one line per consumer-visible change under today's date in the current channel.
-- `docs/skill-history.md`: provenance for evidence-driven changes, as terse labeled lines (source,
-  problem, decision, affected skills, validation, next evidence).
+- `docs/skill-history.md`: terse provenance for evidence-driven changes, including source, problem,
+  decision, affected skills, validation, and next evidence.

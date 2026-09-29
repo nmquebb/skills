@@ -1,91 +1,65 @@
 # q skills
 
-Agent skills for shipping software deliberately: an opt-in spec → plan → implement → archive
-lifecycle, a lightweight issue lane, and standalone skills for code quality, test-first
-development, adversarial review, threat modeling, and running-app evidence.
-
-The skills work in **Claude Code**, **Codex**, and **pi**, with either a **GitHub** workflow (issues,
-pull requests, Projects) or a **local** one (Markdown issues, local merges, a Markdown roadmap).
+Focused skills for turning an idea into working software. Spec, Plan, and Implement can be used
+separately or together. They do not require a tracker, ledger, prescribed artifact location, or
+phase approval.
 
 ## Skills
 
 | Skill | Invocation | What it does |
 | --- | --- | --- |
-| `q-workflow` | explicit or on request | Set up, check, or migrate the project's q configuration; explain the lifecycle |
-| `q-spec` | explicit | Define and approve a delivery's outcome, boundaries, and acceptance |
-| `q-plan` | explicit | Turn an approved spec into a decision-sufficient plan |
-| `q-reconcile` | explicit | Prepare an isolated workspace; integrate, discard, or repair a candidate |
-| `q-implement` | explicit | Deliver an approved plan or triaged issue as one ready candidate |
-| `q-archive` | explicit or automation | Write the delivery record and clean up after merge |
-| `q-triage` | explicit | Turn one issue into an approved, ready implementation contract |
-| `q-feedback` | explicit | Capture workflow feedback or resume interrupted work |
-| `q-roadmap` | on request | Inspect or update the ordered roadmap |
-| `q-improve-skills` | explicit | Evaluate evidence and improve the suite or a project's q setup |
-| `q-code-quality` | automatic before completing code | Evidence-based review against the project's conventions and the suite's baseline code style |
-| `q-tdd` | automatic for behavior changes | Choose a test, observe the intended failure, keep red and green evidence |
-| `q-adversarial` | explicit | Two independent reviewers plus an adjudicator, with debate on disagreements |
-| `q-threat-model` | explicit | Create, refresh, or audit an evidence-anchored threat model |
-| `q-computer-use` | automatic for device and browser work | Guarded simulator, browser, and macOS interaction with an evidence table |
+| `q-spec` | explicit | Clarify the outcome and write a proportional spec at the user's chosen location |
+| `q-plan` | explicit | Plan from freeform text, a spec file, or a stated outcome |
+| `q-implement` | explicit | Implement a direct request, pasted plan, or plan file |
+| `q-workflow` | explicit | Explain or configure optional project conventions |
+| `q-code-quality` | on request or when warranted | Review a code change against project conventions |
+| `q-tdd` | on request or when useful | Work test-first on an uncovered behavior change |
+| `q-adversarial` | explicit | Run an independent adversarial review panel |
+| `q-threat-model` | explicit | Create, refresh, or audit a threat model |
+| `q-computer-use` | when device or browser work needs it | Collect running-app evidence |
 
-Explicit skills are invoked as `/q-spec` in Claude Code, `$q-spec` in Codex, and `/skill:q-spec` in
-pi. The lifecycle is opt-in: ordinary requests never enter it.
+Explicit skills are invoked as `/q-spec` in Claude Code, `$q-spec` in Codex, or `/skill:q-spec`
+in pi. Ordinary coding requests do not enter a q process automatically.
+
+## Core flow
+
+- **Spec:** give a destination path, or choose one after the skill inspects project conventions.
+  A spec may also be returned in the conversation.
+- **Plan:** provide freeform specification text, a spec path, or a stated outcome. The plan may be
+  returned in the conversation or saved where you ask.
+- **Implement:** provide a general instruction, a pasted plan, or a plan path. Checks are selected
+  for the actual change; no artifact or review gate is required by the suite.
+
+Examples:
+
+```text
+/q-spec Define the offline search behavior. Save the spec at docs/design/offline-search.md.
+/q-plan Plan from docs/design/offline-search.md.
+/q-implement Implement docs/plans/offline-search.md.
+/q-implement Fix the stale search results after reconnecting.
+```
 
 ## Install
 
 ```sh
-# Claude Code, Codex, and pi, via the skills CLI (commit the result)
-npx skills add nmquebb/skills#v1 -a claude-code codex pi
+npx skills add nmquebb/skills#v2 -a claude-code codex pi
 ```
 
+For the Claude Code plugin:
+
 ```text
-# Claude Code plugin; then enable auto-update under /plugin → Marketplaces
-/plugin marketplace add nmquebb/skills#v1
+/plugin marketplace add nmquebb/skills#v2
 /plugin install q@q-skills
 ```
 
-`#v1` is the stable channel: it receives every compatible improvement and never a breaking one.
-To update a `skills` CLI install, rerun the same command with `-y` and commit the diff; see
-[distribution](docs/distribution.md) for pinning, subsets, and the plugin's auto-update.
-
-## Configure
-
-Run `/q-workflow` (or `$q-workflow`, `/skill:q-workflow`) in your repository. It detects your
-setup, asks only what it cannot detect, and writes `.agents/q/config.yaml`:
-
-```yaml
-version: 1
-tracker:
-  backend: local        # github | local | custom (Linear, Jira, … via an adapter document)
-integration:
-  host: local           # github: one ready pull request | local: merge in your checkout
-git:
-  parentBranch: main
-roadmap:
-  backend: local        # none | local | github-project
-commands:
-  lint: npm run lint
-  test: npm test
-```
-
-Without a configuration file, skills infer GitHub or local from the remote and `gh` authentication,
-and confirm before their first remote write. Project-specific rules go in addenda:
-`.agents/q/<skill>.md` (for example `.agents/q/implement.md`) extends that skill for your repository,
-and `.agents/q/workflow.md` extends every skill except the standalone ones. The
-[configuration reference](skills/q-workflow/references/config.md) lists every key.
-
-## Multi-agent setups
-
-Supporting roles (slice workers, reviewers, the risk gate, the adversarial panel) use the host's
-own subagents by default. Route roles to specific models or providers, or launch them through
-Paseo, under `agents` in the configuration; see
-[orchestration](skills/q-workflow/references/orchestration.md). Hosts without subagents (pi without
-an extension) run worker roles in the owning session and record that. Self-review never satisfies an
-independent-review gate: there the skill stops and offers a session you start, another launcher, or
-a recorded waiver.
+The `v2` channel carries this simplified workflow. See [distribution](docs/distribution.md) for
+update and migration details. Skills work without configuration. If a project needs shared code,
+test, or agent conventions, use `$q-workflow` to add only those settings to
+`.agents/q/config.yaml`; see the [configuration reference](skills/q-workflow/references/config.md).
 
 ## Contributing
 
-[AGENTS.md](AGENTS.md) holds the authoring rules and the compatibility contract. Validate with:
+[AGENTS.md](AGENTS.md) has authoring and compatibility rules. Validate with:
 
 ```sh
 node scripts/validate.mjs && node --test "tests/*.test.mjs"

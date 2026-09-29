@@ -1,7 +1,7 @@
 interface:
   display_name: "Q Plan"
-  short_description: "Plan an approved q specification"
-  default_prompt: "Use $q-plan to approve a decision-sufficient plan for this delivery and continue to Reconcile Prepare."
+  short_description: "Plan from freeform text or a spec file"
+  default_prompt: "Use $q-plan to plan this specification or stated outcome."
 
 policy:
   allow_implicit_invocation: false

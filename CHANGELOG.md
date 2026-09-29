@@ -1,7 +1,18 @@
 # Changelog
 
-Consumer-visible changes, newest first. Projects on the `v1` channel receive every entry under
-`v1` automatically; see [distribution](docs/distribution.md).
+Consumer-visible changes, newest first. See [distribution](docs/distribution.md) for channels.
+
+## v2
+
+### 2026-09-29
+
+- Replace the managed lifecycle with independent Spec, Plan, and Implement skills: user-chosen
+  spec destination, freeform or file-based planning input, direct or plan-based implementation,
+  and proportional checks without required phase approvals or routing.
+- Remove Triage, Roadmap, Feedback, Improve Skills, Reconcile, and Archive from the suite. Existing
+  v1 artifacts stay in consumer repositories as ordinary documents.
+- Simplify optional project configuration to version 2 conventions, commands, threat-model path,
+  and agent routes; see the migration instructions in distribution docs.
 
 ## v1
 

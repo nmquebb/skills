@@ -1,5 +1,5 @@
 {
-  "description": "Does reviewer effort buy defect detection? A fresh read-only final reviewer, launched with the q-implement final-review contract, reviews one small delivery with planted edge-case defects or none (clean controls).",
+  "description": "Does reviewer effort buy defect detection? A fresh read-only reviewer applies q-code-quality to a small delivery with planted edge-case defects or clean controls.",
   "reps": 3,
   "timeoutSeconds": 900,
   "maxTurns": 60,
@@ -8,20 +8,67 @@
   "config": "config.yaml",
   "setup": "sh \"$SUITE_DIR/build.sh\"",
   "arms": {
-    "opus-low": { "host": "claude", "model": "claude-opus-5-5", "effort": "low" },
-    "opus-medium": { "host": "claude", "model": "claude-opus-5-5", "effort": "medium" },
-    "opus-high": { "host": "claude", "model": "claude-opus-5-5", "effort": "high" },
-    "opus-xhigh": { "host": "claude", "model": "claude-opus-5-5", "effort": "xhigh" },
-    "sol-medium": { "host": "codex", "model": "gpt-6-sol", "effort": "medium" },
-    "sol-high": { "host": "codex", "model": "gpt-6-sol", "effort": "high" },
-    "luna-medium": { "host": "codex", "model": "gpt-6-luna", "effort": "medium" },
-    "luna-high": { "host": "codex", "model": "gpt-6-luna", "effort": "high" },
-    "astra-low": { "host": "codex", "model": "gpt-6-astra", "effort": "low" }
+    "opus-low": {
+      "host": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "low"
+    },
+    "opus-medium": {
+      "host": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "medium"
+    },
+    "opus-high": {
+      "host": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "high"
+    },
+    "opus-xhigh": {
+      "host": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh"
+    },
+    "sol-medium": {
+      "host": "codex",
+      "model": "gpt-6-sol",
+      "effort": "medium"
+    },
+    "sol-high": {
+      "host": "codex",
+      "model": "gpt-6-sol",
+      "effort": "high"
+    },
+    "luna-medium": {
+      "host": "codex",
+      "model": "gpt-6-luna",
+      "effort": "medium"
+    },
+    "luna-high": {
+      "host": "codex",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    "astra-low": {
+      "host": "codex",
+      "model": "gpt-6-astra",
+      "effort": "low"
+    }
   },
-  "defaultArms": ["opus-low", "opus-high"],
+  "defaultArms": [
+    "opus-low",
+    "opus-high"
+  ],
   "judges": {
-    "claude": { "host": "codex", "model": "gpt-6-sol", "effort": "medium" },
-    "codex": { "host": "claude", "model": "claude-opus-5-5", "effort": "medium" }
+    "claude": {
+      "host": "codex",
+      "model": "gpt-6-sol",
+      "effort": "medium"
+    },
+    "codex": {
+      "host": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "medium"
+    }
   },
   "graders": [
     {

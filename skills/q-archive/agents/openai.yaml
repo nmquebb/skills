@@ -1,7 +1,0 @@
-interface:
-  display_name: "Q Archive"
-  short_description: "Archive a merged q lifecycle delivery"
-  default_prompt: "Use $q-archive after a lifecycle merge to write the durable record and metrics on the parent, remove the active artifacts, archive the roadmap item, and write the completion record."
-
-policy:
-  allow_implicit_invocation: false

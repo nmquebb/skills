@@ -1,4 +1,7 @@
 interface:
   display_name: "Q Workflow"
-  short_description: "Set up, check, or explain the q skill configuration"
-  default_prompt: "Use $q-workflow to set up or check this repository's q configuration."
+  short_description: "Configure the lightweight q skills"
+  default_prompt: "Use $q-workflow to explain or configure q skills for this project."
+
+policy:
+  allow_implicit_invocation: false

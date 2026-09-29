@@ -1,114 +1,263 @@
 [
   {
     "id": "workflow-setup",
-    "tags": ["q-workflow"],
-    "prompt": "Set up the q delivery workflow for this repository.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-workflow$" }]
+    "tags": [
+      "q-workflow"
+    ],
+    "prompt": "Use q-workflow to configure optional q project conventions for this repository.",
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-workflow$"
+      }
+    ]
   },
   {
     "id": "workflow-check",
-    "tags": ["q-workflow"],
+    "tags": [
+      "q-workflow"
+    ],
     "prompt": "Is this repo's q configuration valid? Check it for me.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-workflow$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-workflow$"
+      }
+    ]
   },
   {
-    "id": "workflow-next-phase",
-    "tags": ["q-workflow"],
-    "prompt": "We finished planning search filters with the q lifecycle (docs/work-in-progress/search-filters). What phase comes next, and how do I start it?",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-workflow$" }]
+    "id": "workflow-entry-points",
+    "tags": [
+      "q-workflow"
+    ],
+    "prompt": "Use q-workflow to explain whether I can implement a request directly without writing a spec or plan first.",
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-workflow$"
+      }
+    ]
   },
   {
     "id": "quality-review-commit",
-    "tags": ["q-code-quality"],
+    "tags": [
+      "q-code-quality"
+    ],
     "prompt": "Before I merge, do a code-quality review of the change in the last commit.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-code-quality$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-code-quality$"
+      }
+    ]
   },
   {
     "id": "quality-review-conventions",
-    "tags": ["q-code-quality"],
+    "tags": [
+      "q-code-quality"
+    ],
     "prompt": "Review src/cart.js for naming, reuse, and style problems against this repo's conventions. Don't change anything yet.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-code-quality$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-code-quality$"
+      }
+    ]
   },
   {
     "id": "bugfix-to-completion",
-    "tags": ["q-tdd"],
-    "prompt": "A 100% discount makes cartTotal in src/cart.js return a negative total. Fix it.",
-    "stop": { "afterTools": 40 },
+    "tags": [
+      "q-tdd"
+    ],
+    "prompt": "Fix the 100% discount bug in src/cart.js, test-first, then review the change for code quality.",
+    "stop": {
+      "afterTools": 40
+    },
     "graders": [
-      { "name": "loads-tdd", "type": "events", "kind": "skill", "pattern": "^q-tdd$" },
-      { "name": "loads-quality-before-done", "type": "events", "kind": "skill", "pattern": "^q-code-quality$" }
+      {
+        "name": "loads-tdd",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-tdd$"
+      },
+      {
+        "name": "loads-quality-before-done",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-code-quality$"
+      }
     ]
   },
   {
     "id": "tdd-new-function",
-    "tags": ["q-tdd"],
+    "tags": [
+      "q-tdd"
+    ],
     "prompt": "Add a median(values) function to src/stats.js, test-first.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-tdd$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-tdd$"
+      }
+    ]
   },
   {
     "id": "tdd-behavior-change",
-    "tags": ["q-tdd"],
-    "prompt": "Change formatPrice so negative amounts render in parentheses, like ($1.23), instead of -$1.23.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-tdd$" }]
-  },
-  {
-    "id": "roadmap-add",
-    "tags": ["q-roadmap"],
-    "prompt": "Add CSV export for orders to the roadmap, after the search filters work.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-roadmap$" }]
-  },
-  {
-    "id": "roadmap-next",
-    "tags": ["q-roadmap"],
-    "prompt": "What's next on our roadmap?",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-roadmap$" }]
+    "tags": [
+      "q-tdd"
+    ],
+    "prompt": "Change formatPrice so negative amounts render in parentheses, like ($1.23), instead of -$1.23. Work test-first.",
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-tdd$"
+      }
+    ]
   },
   {
     "id": "computer-browser-screenshot",
-    "tags": ["q-computer-use"],
+    "tags": [
+      "q-computer-use"
+    ],
     "prompt": "Open the storefront running at http://localhost:4173 in a browser and screenshot the checkout page.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-computer-use$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-computer-use$"
+      }
+    ]
   },
   {
     "id": "computer-simulator-recording",
-    "tags": ["q-computer-use"],
+    "tags": [
+      "q-computer-use"
+    ],
     "prompt": "Record a short video of the settings screen in the iOS Simulator.",
-    "graders": [{ "name": "loads", "type": "events", "kind": "skill", "pattern": "^q-computer-use$" }]
+    "graders": [
+      {
+        "name": "loads",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-computer-use$"
+      }
+    ]
   },
   {
     "id": "none-explain-module",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "What does src/cart.js do? Two sentences.",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   },
   {
     "id": "none-recent-commits",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "Show me the last three commits.",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   },
   {
     "id": "none-node-version",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "Which Node version does this project need?",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   },
   {
     "id": "none-roadmap-concept",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "In general, how is a product roadmap different from a backlog?",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   },
   {
     "id": "none-ci-workflow-concept",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "What is a GitHub Actions workflow file, briefly?",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   },
   {
     "id": "none-testing-concept",
-    "tags": ["none"],
+    "tags": [
+      "none"
+    ],
     "prompt": "Explain the difference between a unit test and an integration test in one paragraph.",
-    "graders": [{ "name": "no-q-skill", "type": "events", "kind": "skill", "pattern": "^q-", "min": 0, "max": 0 }]
+    "graders": [
+      {
+        "name": "no-q-skill",
+        "type": "events",
+        "kind": "skill",
+        "pattern": "^q-",
+        "min": 0,
+        "max": 0
+      }
+    ]
   }
 ]

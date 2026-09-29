@@ -15,7 +15,7 @@ permissions:
 
 env:
   # The major channel main currently feeds. Change it only in a breaking release.
-  CHANNEL: v1
+  CHANNEL: v2
 
 jobs:
   validate:
