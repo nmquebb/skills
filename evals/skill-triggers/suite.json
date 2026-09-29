@@ -1,0 +1,18 @@
+{
+  "description": "Do the model-invocable q skills load on realistic requests, and stay out of near misses? Each case is one first message in a small repository with the suite installed; runs stop once a q skill loads or after a few tool calls.",
+  "reps": 3,
+  "timeoutSeconds": 300,
+  "maxTurns": 12,
+  "minEffect": 0.15,
+  "sandbox": "workspace-write",
+  "config": "config.yaml",
+  "setup": "cp -R \"$SUITE_DIR/fixture/.\" . && git add -A && git commit -q --no-gpg-sign -m \"Start shopkit\"",
+  "stop": { "onSkill": "^q-", "afterTools": 6 },
+  "arms": {
+    "opus-medium": { "host": "claude", "model": "claude-opus-5-5", "effort": "medium" },
+    "fable-medium": { "host": "claude", "model": "claude-fable-5-1", "effort": "medium" },
+    "sol-medium": { "host": "codex", "model": "gpt-6-sol", "effort": "medium" },
+    "astra-medium": { "host": "codex", "model": "gpt-6-astra", "effort": "medium" }
+  },
+  "defaultArms": ["opus-medium", "sol-medium"]
+}

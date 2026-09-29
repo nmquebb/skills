@@ -1,0 +1,18 @@
+version: 1
+
+tracker:
+  backend: local
+
+integration:
+  host: local
+
+git:
+  remote: none
+  parentBranch: main
+
+roadmap:
+  backend: local
+  file: docs/roadmap.md
+
+commands:
+  test: npm test

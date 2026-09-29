@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-unquoted-line-break",
+      "type": "judge",
+      "claim": "The review reports that a field containing a line break (LF or CR) is not quoted, because the quoting test only checks for commas and double quotes, so such a field splits the record."
+    }
+  ]
+}

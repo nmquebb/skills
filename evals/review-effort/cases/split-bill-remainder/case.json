@@ -1,0 +1,22 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-uneven-shares",
+      "type": "judge",
+      "claim": "The review reports that rounding the share can make shares differ by more than one cent or go negative: for example splitBill(4, 6) gives a last share of -1, or splitBill(10, 6) gives [2, 2, 2, 2, 2, 0]."
+    },
+    {
+      "name": "finds-remainder-order",
+      "type": "judge",
+      "claim": "The review reports that leftover cents go to the last person instead of the first people, as the acceptance requires: for example splitBill(1000, 3) returns [333, 333, 334] instead of [334, 333, 333]."
+    }
+  ]
+}

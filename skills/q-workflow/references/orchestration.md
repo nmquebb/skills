@@ -39,6 +39,18 @@ agents:
     finalReviewer: claude/<model> high plan
 ```
 
+## Effort
+
+Name an effort in every route: an unset one falls back to host or user settings, which differ by
+machine. Effort buys verification, meaning more checking for the edge cases a first pass misses. It
+rarely repairs a wrong approach or a misread requirement; those need a clearer Spec or Plan, or the
+stronger route [escalation](#escalation) names. A small, well-specified task behaves about the same
+at every effort, so spend effort where scope is broad or unfamiliar and a missed case is costly:
+review of a broad or consequential diff, `riskGate`, the `q-adversarial` panel, and hard diagnosis.
+Rule-following work such as `bookkeeping` rarely gains from it. These are starting points; settle
+each role on the project's own evidence, an [eval](../../q-improve-skills/references/evals.md) or a
+model and effort experiment, never a vendor benchmark alone.
+
 ## Routing rules
 
 - Select the implementation owner separately from its slice workers: coordination does not inherit

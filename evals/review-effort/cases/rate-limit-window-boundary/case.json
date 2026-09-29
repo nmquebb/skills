@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-boundary",
+      "type": "judge",
+      "claim": "The review reports that a call made exactly windowMs earlier still counts against the limit, because eviction uses < instead of <= (for example with limit 1 and windowMs 1000, a call at 0 blocks a call at 1000), contrary to the acceptance."
+    }
+  ]
+}

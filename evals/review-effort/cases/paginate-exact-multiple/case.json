@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-page-count",
+      "type": "judge",
+      "claim": "The review reports that totalPages is one too high whenever the number of items is an exact multiple of pageSize, including an empty list: for example 6 items at pageSize 3 give 3 pages with an empty last page (or hasNext true on page 2), or an empty list gives 1 page instead of 0."
+    }
+  ]
+}

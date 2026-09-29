@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "requirement"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-case-sensitive-key",
+      "type": "judge",
+      "claim": "The review reports that emails are compared case-sensitively (the key is only trimmed, not lowercased), so addresses that differ only in letter case, such as Ana@Example.com and ana@example.com, are both kept."
+    }
+  ]
+}

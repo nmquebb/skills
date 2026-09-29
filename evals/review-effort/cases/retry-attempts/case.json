@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-extra-attempt",
+      "type": "judge",
+      "claim": "The review reports that the loop calls the operation one time too many (attempts + 1 calls, for example 4 calls when attempts is 3) because the loop condition uses <= instead of <."
+    }
+  ]
+}

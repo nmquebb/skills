@@ -16,6 +16,8 @@ contract.
 | `skills/q-workflow/references/` | Shared lifecycle contract: config, lifecycle, orchestration, backends, questions, artifacts, metrics, documentation |
 | `.claude-plugin/` | Plugin and marketplace manifests, with no `version` so users track commits |
 | `scripts/validate.mjs` | Suite validator |
+| `scripts/eval.mjs`, `scripts/eval/` | Eval harness: headless host adapters, grading, statistics |
+| `evals/` | Eval suites: cases, fixtures, and graders ([evals](evals/README.md)) |
 | `tests/` | Tests for suite scripts |
 | `docs/` | Maintainer documentation: distribution, skill history |
 
@@ -82,7 +84,12 @@ node scripts/validate.mjs                # structure, frontmatter, links, leaks,
 node --test "tests/*.test.mjs"           # suite script tests (CI)
 node scripts/check-compat.mjs origin/v1  # public-API compatibility with the channel (CI)
 node scripts/check-hosts.mjs             # before releasing host-visible changes; needs network
+node scripts/eval.mjs run <suite>        # behavior on real hosts; spends model usage, never in CI
 ```
+
+`eval.mjs` runs a suite under `evals/` (or any suite directory) against each host CLI in fresh
+workspaces; [evals](evals/README.md) documents the harness, and `q-improve-skills`
+[evals](skills/q-improve-skills/references/evals.md) the method.
 
 `check-hosts` installs this checkout with the `skills` CLI into a throwaway repository, resolves
 every relative link through the installed layout, and asks Claude Code (`claude plugin validate` and

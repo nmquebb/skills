@@ -1,0 +1,13 @@
+{
+  "tags": ["clean"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["READY"] },
+      "nonEmpty": ["coverage"]
+    }
+  ]
+}

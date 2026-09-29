@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "edge-case"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-accepts-invalid",
+      "type": "judge",
+      "claim": "The review reports that invalid input does not throw: because the pattern is unanchored and every part is optional, inputs such as an empty string, \"abc\", or a duration with trailing text (\"1h30mx\") return a number (often 0) instead of throwing a TypeError."
+    }
+  ]
+}

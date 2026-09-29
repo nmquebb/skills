@@ -9,8 +9,9 @@ disable-model-invocation: true
 
 Improve measured behavior without building a framework. Read
 [references/evaluation-format.md](references/evaluation-format.md) and
-[documentation](../q-workflow/references/documentation.md). Load the host's skill-authoring
-guidance when available.
+[documentation](../q-workflow/references/documentation.md), and
+[references/evals.md](references/evals.md) when the target is behavior an eval can check. Load the
+host's skill-authoring guidance when available.
 
 ## Choose the owner
 
@@ -116,6 +117,9 @@ permissions.
   [the schema](../q-workflow/references/config.schema.json); confirm each addendum names an existing
   skill.
 - Parse changed YAML or JSON and inspect the focused diff.
+- When an eval covers the changed behavior, run it on both splits against the baseline revision
+  and report the delta with its interval per [evals](references/evals.md), after the user approves
+  its size and usage.
 - Use a fresh-context scenario only when structural inspection cannot prove an important routing,
   authority, capture, or resume behavior; at most two scenarios unless the user approves more. Give
   the scenario agent only the skill and realistic raw artifacts, not the diagnosis or intended

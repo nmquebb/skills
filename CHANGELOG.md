@@ -7,6 +7,13 @@ Consumer-visible changes, newest first. Projects on the `v1` channel receive eve
 
 ### 2026-09-28
 
+- Improve Skills can measure a change with an eval: cases drawn from real work, checkable claims
+  judged by another model family, a pilot before any baseline, and a fixed train/test split for
+  hillclimbing skill text or routes.
+- Orchestration gains an Effort section: what effort buys, where to spend it, and that every route
+  names one.
+- The native launcher explains how Claude Code children get a full model ID or an effort (agent
+  definitions), that a Codex agent definition's effort overrides the spawned one, and pi's tools.
 - Code retrieval starts with Quick Scope (`qs`) when its MCP tools or CLI are available, and falls
   back to the project's and host's tools for what it does not cover; Threat Model maps entry points
   the same way.

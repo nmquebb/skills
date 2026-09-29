@@ -1,0 +1,17 @@
+{
+  "tags": ["defect", "security"],
+  "promptFile": "../../review.md",
+  "graders": [
+    {
+      "name": "verdict",
+      "type": "json",
+      "required": ["status", "summary", "evidence", "coverage"],
+      "enum": { "status": ["CONTINUE", "BLOCKED"] }
+    },
+    {
+      "name": "finds-attribute-injection",
+      "type": "judge",
+      "claim": "The review reports that a single quote in the title (or label) is not escaped while the title attribute is single-quoted, so user input such as x' onmouseover='alert(1) can break out of the attribute and inject markup or script."
+    }
+  ]
+}

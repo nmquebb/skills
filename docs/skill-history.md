@@ -81,3 +81,32 @@ settled choice; read only the last ~40 lines before appending. Format:
   (`20260928-124816-baseline`); after tuning, Luna and Sol answered every task
   (`20260928-152355-tuned2`)
 - Next evidence: lifecycle deliveries in both consumers using qs, and gaps agents report
+
+### 2026-09-28 — Evals and effort
+
+- Source: Anthropic, "Automating eval design and hillclimbing" and "Spending your effort"
+  (claude.dev blog, accessed 2026-09-28, read through a summarizer); Claude Code 2.1.282's bundled
+  `claude-api` eval workflows and `claude plugin eval` (proprietary; method only); anthropics/skills
+  `skill-creator` at `b9e19e6f` (Apache-2.0); `--help` and docs of Claude Code 2.1.282 and Codex
+  0.157.0; the author's qs agent benchmark
+- Authority: the author, asking to integrate both posts across Claude, Codex, and future hosts
+- Problem: improvements were validated structurally plus at most two scenario runs; prospective
+  model and effort trials fill slowly (none of eighteen slots used after six days in the source
+  project); nothing measured skill behavior repeatably across hosts; the native launcher called
+  Claude Code effort unselectable per child
+- Decision: adopted — an eval method in `q-improve-skills` (real-work cases, cross-family judges,
+  pilot before baseline, fixed train/test split, one root-cause change per round, kept only when
+  test improves too) and an Effort section in orchestration; adapted — a host-neutral harness
+  (`scripts/eval.mjs`) over the Claude-only tools, whose scaffolds are proprietary here and
+  unmerged upstream; corrected — Claude Code child model and effort, Codex agent-file effort, pi's
+  tools; deferred — a consumer-facing eval skill, per-skill effort frontmatter (Claude Code only),
+  multi-turn cases, and a pi adapter (pi not installed)
+- Owners: `q-improve-skills` SKILL.md and references/evals.md; `q-workflow` orchestration and native
+  launcher; `evals/`, `scripts/eval.mjs`, `scripts/eval/`, `tests/eval.test.mjs`; AGENTS.md
+- Validation: suite validator, 56 script tests, compatibility check; pilots at one repeat:
+  `skill-triggers` 36 of 36 (Opus 5.5 and GPT-6 Sol, medium); `review-effort` 10 of 10 for Opus 5.5
+  at low and at high (high at 1.6 times the list cost and 1.9 times the time), 10 of 10 for GPT-6
+  Astra low, 9 of 10 for GPT-6 Luna high (missed uneven shares in the bill split); both suites
+  have no headroom, so they guard regressions and cost, not quality gains
+- Next evidence: a private review suite from the source project's confirmed review findings and
+  escaped defects, with headroom below 95%, at three repeats across its configured reviewer routes
